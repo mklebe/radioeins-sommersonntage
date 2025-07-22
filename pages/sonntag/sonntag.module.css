@@ -1,0 +1,16 @@
+.songListe {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 10px;
+  border: 2px solid #333;
+}
+
+.songItem {
+  background-color: #4caf50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 20px;
+}
