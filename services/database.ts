@@ -16,27 +16,26 @@ const firebaseConfig: FirebaseOptions = {
 export interface Sonntag {
     id: string;
     name: string;
-    date: string;
+    date: Date;
 }
 export const getSonntage = async (): Promise<Array<Sonntag>> => {
     const querySnapshot = await getDocs(collection(db, "sonntag"));
 
     return querySnapshot.docs.map((document) => ({
         id: document.id,
-        date: new Date(document.data().date.seconds * 1000).toLocaleString(),
+        date: new Date(document.data().date.seconds * 1000),
         name: document.data().name,
     }));
 }
 
 export const getSonntagById = async (documentId: string): Promise<Sonntag|null> => {
     const docReference = doc(db, "sonntag", documentId);
-    console.log(firebaseConfig)
     const docSnapshot = await getDoc(docReference);
 
     if(docSnapshot.exists()) {
         return {
             id: docSnapshot.id,
-            date: new Date(docSnapshot.data().date.seconds * 1000).toLocaleString(),
+            date: new Date(docSnapshot.data().date.seconds * 1000),
             name: docSnapshot.data().name,
         }
     }
