@@ -1,5 +1,5 @@
 import { FirebaseOptions, initializeApp } from "firebase/app";
-import { collection, doc, DocumentReference, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
 import { Sonntag, User } from "../types";
 
 const firebaseConfig: FirebaseOptions = {
@@ -15,13 +15,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export const getSonntage = async (): Promise<Array<Sonntag>> => {
-    const querySnapshot = await getDocs(collection(db, "sonntag"));
+  const querySnapshot = await getDocs(collection(db, "sonntag"));
 
-    return querySnapshot.docs.map((document) => ({
-        id: document.id,
-        date: new Date(document.data().date.seconds * 1000),
-        name: document.data().name,
-    }));
+  return querySnapshot.docs.map((document) => ({
+    id: document.id,
+    date: new Date(document.data().date.seconds * 1000),
+    name: document.data().name,
+  }));
 }
 
 export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: Array<string>) => {
@@ -31,47 +31,45 @@ export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: A
 }
 
 export const getTipp = async (userid: string, sonntag: string) => {
-    const tipId = `${userid}_${sonntag}`;
-    const docReference = doc(db, "tipps", tipId);
-    const docSnapshot = await getDoc(docReference);
+  const tipId = `${userid}_${sonntag}`;
+  const docReference = doc(db, "tipps", tipId);
+  const docSnapshot = await getDoc(docReference);
 
-    if(docSnapshot.exists()) {
-        return docSnapshot.data().bingofeld;
-    }
+  if(docSnapshot.exists()) {
+    return docSnapshot.data().bingofeld;
+  }
 
-    return null;
+  return null;
 }
 
 export const getSonntagById = async (documentId: string): Promise<Sonntag|null> => {
-    const docReference = doc(db, "sonntag", documentId);
-    const docSnapshot = await getDoc(docReference);
+  const docReference = doc(db, "sonntag", documentId);
+  const docSnapshot = await getDoc(docReference);
 
-    if(docSnapshot.exists()) {
-        return {
-            id: docSnapshot.id,
-            date: new Date(docSnapshot.data().date.seconds * 1000),
-            name: docSnapshot.data().name,
-        }
+  if(docSnapshot.exists()) {
+    return {
+      id: docSnapshot.id,
+      date: new Date(docSnapshot.data().date.seconds * 1000),
+      name: docSnapshot.data().name,
     }
+  }
 
-    return null;
+  return null;
 }
 
 export const getUserById = async (documentId: string): Promise<User|null> => {
-    const docReference = doc(db, "user", documentId);
-    const docSnapshot = await getDoc(docReference);    
-    
-    if(docSnapshot.exists()) {
-        const tipps = docSnapshot.data().tipps;
-
-        const a = {
-            id: docSnapshot.id,
-            gesamtpunktzahl: docSnapshot.data().gesamtpunktzahl,
-            name: docSnapshot.data().name,
-        }
-
-        return a;
+  const docReference = doc(db, "user", documentId);
+  const docSnapshot = await getDoc(docReference);    
+  
+  if(docSnapshot.exists()) {
+    const a = {
+      id: docSnapshot.id,
+      gesamtpunktzahl: docSnapshot.data().gesamtpunktzahl,
+      name: docSnapshot.data().name,
     }
 
-    return null;
+    return a;
+  }
+
+  return null;
 }
