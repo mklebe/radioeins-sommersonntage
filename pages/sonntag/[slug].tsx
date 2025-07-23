@@ -47,15 +47,26 @@ export default function Overview({sonntag, user, initialBingofeld}:
     <p>Tipppunkte: {user.tipp.punktzahl}</p>
     {typeof songInputIndex === "number" && <>
       <form action={saveTipp}>
-        <label>Künstler: <input name="artist" type="text" defaultValue={bingofeld[songInputIndex].artist} /></label>
-        <label>Lied: <input name="title" type="text" defaultValue={bingofeld[songInputIndex].title} /></label>
+        <label>Künstler: <input name="artist" type="text" defaultValue={bingofeld[songInputIndex].artist} /></label><br />
+        <label>Lied: <input name="title" type="text" defaultValue={bingofeld[songInputIndex].title} /></label><br />
+        <br />
+        <div style={{display: "flex", alignContent: "space-between"}}>
+
+        <button style={{marginRight: 32}} type="reset" onClick={() => setSongInputIndex(null)}>schließen</button>
         <button type="submit">Speichern</button>
 
-        <button type="reset" onClick={() => setSongInputIndex(null)}>schließen</button>
+        </div>
+        <br />
+        <br />
         </form>
       </>
     }
     <div className={styles.songListe}>
+      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>100 - 81</div>
+      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>80 - 61</div>
+      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>60 - 41</div>
+      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>40 - 21</div>
+      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>20 - 1</div>
       {bingofeld.map((song, index) => {
         return <div onClick={() => setSongInputIndex(index)} 
           className={styles.songItem} key={`song_${index}`}>{song.artist} - {song.title}</div>
