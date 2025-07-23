@@ -1,19 +1,30 @@
 import { GetServerSidePropsContext } from "next";
-import { getSonntagById, getUserById, saveUserTipp } from "../../services/database";
+import { getSonntagById, getTipp, getUserById } from "../../services/database";
 import Link from "next/link";
 import { SerializableSonntag, Tipp, User } from "../../types";
 import { useState } from "react";
 import styles from "./sonntag.module.css";
+import { init } from "next/dist/compiled/webpack/webpack";
 
 type TippUser = Omit<User, "tipps"> & {"tipp": Tipp}
 
-export default function Overview({sonntag, user}: {sonntag: SerializableSonntag, user: TippUser}) {
+interface Song {
+  artist: string;
+  title: string;
+}
+
+export default function Overview({sonntag, user, initialBingofeld}: 
+  {sonntag: SerializableSonntag, user: TippUser, initialBingofeld: Array<Song>}) {
   const [songInputIndex, setSongInputIndex] = useState<number|null>();
-  const [bingofeld, setBingofeld] = useState<Array<string>>(user.tipp.bingofeld);
+  const [bingofeld, setBingofeld] = useState<Array<Song>>(initialBingofeld);
+  console.log(bingofeld)
 
   const saveTipp = (formData: FormData) => {
-    if(songInputIndex) {
-      const newTipp = `${formData.get("artist")} - ${formData.get("song")}`
+    if(typeof songInputIndex === "number") {
+      const newTipp = {
+        artist: formData.get("artist")?.valueOf() as string || "",
+        title: formData.get("title")?.valueOf() as string || "",
+      }
       const newBingofeld = [...bingofeld];
       newBingofeld[songInputIndex] = newTipp;
       setBingofeld(newBingofeld);
@@ -34,19 +45,20 @@ export default function Overview({sonntag, user}: {sonntag: SerializableSonntag,
     <h1>{sonntag.name} {songInputIndex}</h1>
     <p>{sonntag.date}</p>
     <p>Tipppunkte: {user.tipp.punktzahl}</p>
-    {songInputIndex && <>
-    <form action={saveTipp}>
-      <label>Künstler: <input name="artist" type="text" /></label>
-      <label>Lied: <input name="song" type="text" /></label>
-      <button type="submit">Speichern</button>
+    {typeof songInputIndex === "number" && <>
+      <form action={saveTipp}>
+        <label>Künstler: <input name="artist" type="text" value={bingofeld[songInputIndex].artist} /></label>
+        <label>Lied: <input name="title" type="text" value={bingofeld[songInputIndex].title} /></label>
+        <button type="submit">Speichern</button>
 
-      <button type="reset" onClick={() => setSongInputIndex(null)}>schließen</button>
-      </form>
-    </>
+        <button type="reset" onClick={() => setSongInputIndex(null)}>schließen</button>
+        </form>
+      </>
     }
     <div className={styles.songListe}>
       {bingofeld.map((song, index) => {
-        return <div onClick={() => setSongInputIndex(index)} className={styles.songItem} key={`song_${index}`}>{song}</div>
+        return <div onClick={() => setSongInputIndex(index)} 
+          className={styles.songItem} key={`song_${index}`}>{song.artist} - {song.title}</div>
       })}
     </div>
   </>
@@ -65,7 +77,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   const user = await getUserById(userid);
-  console.log(user);
   
   if(slug === undefined || typeof slug !== "string") {
     return {
@@ -73,9 +84,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
   }
 
+  let initialBingofeld = await getTipp(userid, slug);
+  if(!initialBingofeld) {
+    initialBingofeld = Array(25).fill({artist: "", title: ""})
+  }
+
   const sonntag = await getSonntagById(slug);
 
-  if (!sonntag || !user) {
+  if (!sonntag || !user || !initialBingofeld) {
     return {
       notFound: true,
     }
@@ -100,6 +116,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     props: {
       sonntag: serializableSonntag,
       user: transferredUser,
+      initialBingofeld,
     },
   }
 }

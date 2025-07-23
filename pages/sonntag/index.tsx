@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { getSonntage } from "../../services/database";
-import { SerializableSonntag, Sonntag } from "../../types";
+import { getSonntage, getUserById } from "../../services/database";
+import { SerializableSonntag, Sonntag, User } from "../../types";
+import { GetServerSidePropsContext } from "next";
 
-export default function SonntagPage({ sonntage }: {sonntage: Array<Sonntag>}) {
-  console.log(sonntage)
+export default function SonntagPage({ sonntage, user }: {sonntage: Array<Sonntag>, user: User}) {
   return (
     <div>
-      <h1>It works! Now it really does!</h1>
+      <h1>Hallo {user.name}</h1>
       <ul>
         {sonntage
         .map(( {id, name, date} ) => {
@@ -27,25 +27,31 @@ export default function SonntagPage({ sonntage }: {sonntage: Array<Sonntag>}) {
   )
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const sonntage = await getSonntage();
-  console.log(sonntage);
-  
-  if (!sonntage) {
+  const { userid } = context.req.cookies;
+
+  if(userid === undefined) {
     return {
       notFound: true,
     }
   }
 
+  const user = await getUserById(userid);
+
+  if (!sonntage || !user) {
+    return {
+      notFound: true,
+    }
+  }
   const sortedSonntage = sonntage
     .sort((a, b) => a.date.getTime() - b.date.getTime())
-  
     const serializableSonntag: Array<SerializableSonntag> = sortedSonntage.map((s: Sonntag) => ({
       ...s,
       date: s.date.toLocaleDateString(),
     }))
   
     return {
-      props: {sonntage: serializableSonntag},
+      props: {sonntage: serializableSonntag, user},
     }
 };

@@ -8,7 +8,7 @@ export default async function Home() {
 
   return (
     <div>
-      <h1>It works! Now it really does!</h1>
+      <h1>Übersicht über alle Sonntage</h1>
       <ul>
         {sonntage
         .sort((a, b) => a.date.getTime() - b.date.getTime())

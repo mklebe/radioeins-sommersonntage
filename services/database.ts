@@ -1,5 +1,5 @@
 import { FirebaseOptions, initializeApp } from "firebase/app";
-import { collection, doc, DocumentReference, getDoc, getDocs, getFirestore } from "firebase/firestore";
+import { collection, doc, DocumentReference, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
 import { Sonntag, Tipp, User } from "../types";
 
 const firebaseConfig: FirebaseOptions = {
@@ -25,7 +25,21 @@ export const getSonntage = async (): Promise<Array<Sonntag>> => {
 }
 
 export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: Array<string>) => {
-  console.log(userid, sonntag, bingofeld);
+  const docReference = doc(db, "tipps", `${userid}_${sonntag}`);
+  console.log(bingofeld)
+  await setDoc(docReference, {bingofeld});
+}
+
+export const getTipp = async (userid: string, sonntag: string) => {
+    const tipId = `${userid}_${sonntag}`;
+    const docReference = doc(db, "tipps", tipId);
+    const docSnapshot = await getDoc(docReference);
+
+    if(docSnapshot.exists()) {
+        return docSnapshot.data().bingofeld;
+    }
+
+    return null;
 }
 
 export const getSonntagById = async (documentId: string): Promise<Sonntag|null> => {
@@ -52,7 +66,6 @@ export const getUserById = async (documentId: string): Promise<User|null> => {
     const docSnapshot = await getDoc(docReference);    
     
     if(docSnapshot.exists()) {
-        console.log(docSnapshot.data());
         const tipps = docSnapshot.data().tipps;
 
         const a = {

@@ -8,7 +8,6 @@ export default async function handler(request: NextApiRequest, response: NextApi
   if(userId === undefined || typeof userId !== "string") {
     return response.status(404).json({message: "User not found"});
   }
-  console.log(request.query)
   const user = await getUserById(userId)
 
   if(!user) {
