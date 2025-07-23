@@ -10,7 +10,6 @@ export interface User {
     id: string;
     name: string;
     gesamtpunktzahl: number;
-    tipps: Array<Tipp>
 };
 
 export interface Tipp {

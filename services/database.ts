@@ -1,6 +1,6 @@
 import { FirebaseOptions, initializeApp } from "firebase/app";
 import { collection, doc, DocumentReference, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
-import { Sonntag, Tipp, User } from "../types";
+import { Sonntag, User } from "../types";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -57,10 +57,6 @@ export const getSonntagById = async (documentId: string): Promise<Sonntag|null> 
     return null;
 }
 
-type TippDto = Omit<Tipp, "sonntag"> & {"sonntag": DocumentReference}
-
-
-
 export const getUserById = async (documentId: string): Promise<User|null> => {
     const docReference = doc(db, "user", documentId);
     const docSnapshot = await getDoc(docReference);    
@@ -72,8 +68,6 @@ export const getUserById = async (documentId: string): Promise<User|null> => {
             id: docSnapshot.id,
             gesamtpunktzahl: docSnapshot.data().gesamtpunktzahl,
             name: docSnapshot.data().name,
-            tipps,
-        
         }
 
         return a;

@@ -44,14 +44,16 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       notFound: true,
     }
   }
+
   const sortedSonntage = sonntage
     .sort((a, b) => a.date.getTime() - b.date.getTime())
-    const serializableSonntag: Array<SerializableSonntag> = sortedSonntage.map((s: Sonntag) => ({
-      ...s,
-      date: s.date.toLocaleDateString(),
-    }))
-  
-    return {
-      props: {sonntage: serializableSonntag, user},
-    }
+
+  const serializableSonntag: Array<SerializableSonntag> = sortedSonntage.map((s: Sonntag) => ({
+    ...s,
+    date: s.date.toLocaleDateString(),
+  }))
+
+  return {
+    props: {sonntage: serializableSonntag, user},
+  }
 };
