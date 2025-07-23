@@ -47,8 +47,8 @@ export default function Overview({sonntag, user, initialBingofeld}:
     <p>Tipppunkte: {user.tipp.punktzahl}</p>
     {typeof songInputIndex === "number" && <>
       <form action={saveTipp}>
-        <label>Künstler: <input name="artist" type="text" value={bingofeld[songInputIndex].artist} /></label>
-        <label>Lied: <input name="title" type="text" value={bingofeld[songInputIndex].title} /></label>
+        <label>Künstler: <input name="artist" type="text" defaultValue={bingofeld[songInputIndex].artist} /></label>
+        <label>Lied: <input name="title" type="text" defaultValue={bingofeld[songInputIndex].title} /></label>
         <button type="submit">Speichern</button>
 
         <button type="reset" onClick={() => setSongInputIndex(null)}>schließen</button>
