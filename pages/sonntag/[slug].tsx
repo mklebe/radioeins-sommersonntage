@@ -124,6 +124,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   const [user, tipp, sonntag] = await Promise.all([getUserById(userid), getTipp(userid, slug), getSonntagById(slug)]);
+  console.log(user, tipp, sonntag);
 
   if (!sonntag || !user || !tipp) {
     return {
