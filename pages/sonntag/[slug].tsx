@@ -66,8 +66,10 @@ export default function Overview({sonntag, user, tipp}:
         artist: formData.get("artist")?.valueOf() as string || "",
         title: formData.get("title")?.valueOf() as string || "",
       }
+      console.log(newTipp);
       const newBingofeld = [...bingofeld];
       newBingofeld[songInputIndex] = newTipp;
+      console.log(newBingofeld)
       setBingofeld(newBingofeld);
       setSongInputIndex(null);
       fetch(`/api/user/tipp`, {
