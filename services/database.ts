@@ -28,7 +28,9 @@ export const getSonntage = async (): Promise<Array<Sonntag>> => {
 export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: Array<string>) => {
   const docReference = doc(db, "tipps", `${userid}_${sonntag}`);
   console.log(userid, sonntag, bingofeld)
-  await setDoc(docReference, {bingofeld, tippStatus: Array(25).fill(TippStatus.NOT_HIT)}, { merge: true });
+  await setDoc(docReference, {bingofeld, tippStatus: Array(25).fill(TippStatus.NOT_HIT)}, { merge: true })
+    .then(() => console.log("Successfully updated", userid, sonntag))
+    .catch((e) => console.log(e));
 }
 
 export const getTipp = async (userid: string, sonntag: string): Promise<Tipp> => {
