@@ -19,7 +19,6 @@ export interface User {
 };
 
 export interface Tipp {
-    sonntag: string;
     punktzahl: number;
-    bingofeld: Array<string>;
+    bingofeld: Array<Song>;
 };

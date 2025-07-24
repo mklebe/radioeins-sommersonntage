@@ -1,14 +1,14 @@
 import { GetServerSidePropsContext } from "next";
 import { getSonntagById, getTipp, getUserById } from "../../services/database";
 import Link from "next/link";
-import { SerializableSonntag, Song, User } from "../../types";
+import { SerializableSonntag, Song, Tipp, User } from "../../types";
 import { useState } from "react";
 import styles from "./sonntag.module.css";
 
-export default function Overview({sonntag, user, initialBingofeld}: 
-  {sonntag: SerializableSonntag, user: User, initialBingofeld: Array<Song>}) {
+export default function Overview({sonntag, user, tipp}: 
+  {sonntag: SerializableSonntag, user: User, tipp: Tipp} ) {
   const [songInputIndex, setSongInputIndex] = useState<number|null>();
-  const [bingofeld, setBingofeld] = useState<Array<Song>>(initialBingofeld);
+  const [bingofeld, setBingofeld] = useState<Array<Song>>(tipp.bingofeld);
 
   const saveTipp = (formData: FormData) => {
     if(typeof songInputIndex === "number") {
@@ -34,7 +34,9 @@ export default function Overview({sonntag, user, initialBingofeld}:
   return <>
     <Link href="/sonntag">Zurück zur Übersicht</Link>
     <h1>{sonntag.name} {songInputIndex}</h1>
-    <p>{sonntag.date}</p>
+    <p>Playlist startet: {sonntag.date}</p>
+    <p>Tipps von: {user.name}</p>
+    <p>Punkte für diese List: {tipp.punktzahl}</p>
     {typeof songInputIndex === "number" && <>
       <form action={saveTipp}>
         <label>Künstler: <input name="artist" type="text" defaultValue={bingofeld[songInputIndex].artist} /></label><br />
@@ -89,14 +91,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
   }
 
-  let initialBingofeld = await getTipp(userid, slug);
-  if(!initialBingofeld) {
-    initialBingofeld = Array(25).fill({artist: "", title: ""})
-  }
+  const tipp = await getTipp(userid, slug);
+
 
   const sonntag = await getSonntagById(slug);
 
-  if (!sonntag || !user || !initialBingofeld) {
+  if (!sonntag || !user || !tipp) {
     return {
       notFound: true,
     }
@@ -114,7 +114,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     props: {
       sonntag: serializableSonntag,
       user: transferredUser,
-      initialBingofeld,
+      tipp,
     },
   }
 }
