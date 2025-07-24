@@ -1,14 +1,9 @@
 import { GetServerSidePropsContext } from "next";
 import { getSonntagById, getTipp, getUserById } from "../../services/database";
 import Link from "next/link";
-import { SerializableSonntag, User } from "../../types";
+import { SerializableSonntag, Song, User } from "../../types";
 import { useState } from "react";
 import styles from "./sonntag.module.css";
-
-interface Song {
-  artist: string;
-  title: string;
-}
 
 export default function Overview({sonntag, user, initialBingofeld}: 
   {sonntag: SerializableSonntag, user: User, initialBingofeld: Array<Song>}) {
@@ -66,6 +61,11 @@ export default function Overview({sonntag, user, initialBingofeld}:
           className={styles.songItem} key={`song_${index}`}>{song.artist} - {song.title}</div>
       })}
     </div>
+    <ul>
+      {sonntag.playlist.map(({artist, title}, index) => {
+        return <li key={`${title}_${index}`}>{100 - index} {artist} - {title}</li>
+      })}
+    </ul>
   </>
 
 }
