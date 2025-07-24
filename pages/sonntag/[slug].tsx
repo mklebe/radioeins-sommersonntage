@@ -1,13 +1,63 @@
 import { GetServerSidePropsContext } from "next";
 import { getSonntagById, getTipp, getUserById } from "../../services/database";
 import Link from "next/link";
-import { SerializableSonntag, Song, Tipp, User } from "../../types";
+import { SerializableSonntag, Song, Tipp, TippStatus, User } from "../../types";
 import { useState } from "react";
-import styles from "./sonntag.module.css";
+import { Box, List, ListItem, Paper } from "@mui/material";
+
+const tippStatusColorMapping = new Map<TippStatus, string>();
+tippStatusColorMapping.set(TippStatus.NOT_HIT, "transparent");
+tippStatusColorMapping.set(TippStatus.IN_LIST, "yellow");
+tippStatusColorMapping.set(TippStatus.CORRECT_COLUMN, "green");
+tippStatusColorMapping.set(TippStatus.CORRECT_WINNER, "red");
+tippStatusColorMapping.set(TippStatus.JOKER, "rebeccapurple");
+
+
+type BingofeldProps = {
+  bingofeld: Array<Song>,
+  selectedSongIndex: number | null,
+  bingofeldHits: Array<TippStatus>
+  selectSong: (index: number) => void,
+}
+function Bingofeld({bingofeld, selectSong, selectedSongIndex, bingofeldHits}: BingofeldProps) {
+  return <Box
+      display="grid"
+      gridTemplateColumns="repeat(5, 1fr)"
+      gridTemplateRows="repeat(5, 1fr)"
+      gap={2}
+    >
+      <div>100 - 81</div>
+      <div>80 - 61</div>
+      <div>60 - 41</div>
+      <div>40 - 21</div>
+      <div>20 - 1</div>
+      {bingofeld.map((song, index) => {
+        const backgroundColor = index === selectedSongIndex ? "#ddd" : tippStatusColorMapping.get(bingofeldHits[index]);
+       
+        return <Paper
+         sx={{ backgroundColor, cursor: "pointer", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 1 }}
+         onClick={() => selectSong(index)} key={`song_${index}`}>
+            {song.artist} - {song.title}
+          </Paper>
+        
+      })}
+    </Box>
+}
+
+type PlaylistProps = {
+  list: Array<Song>,
+}
+function Playlist({list}: PlaylistProps) {
+  return <List>
+      {list.map(({artist, title}, index) => {
+        return <ListItem key={`${title}_${index}`}>{100 - index} {artist} - {title}</ListItem>
+      })}
+    </List>
+}
 
 export default function Overview({sonntag, user, tipp}: 
   {sonntag: SerializableSonntag, user: User, tipp: Tipp} ) {
-  const [songInputIndex, setSongInputIndex] = useState<number|null>();
+  const [songInputIndex, setSongInputIndex] = useState<number|null>(null);
   const [bingofeld, setBingofeld] = useState<Array<Song>>(tipp.bingofeld);
 
   const saveTipp = (formData: FormData) => {
@@ -33,7 +83,7 @@ export default function Overview({sonntag, user, tipp}:
 
   return <>
     <Link href="/sonntag">Zurück zur Übersicht</Link>
-    <h1>{sonntag.name} {songInputIndex}</h1>
+    <h1>{sonntag.name}</h1>
     <p>Playlist startet: {sonntag.date}</p>
     <p>Tipps von: {user.name}</p>
     <p>Punkte für diese List: {tipp.punktzahl}</p>
@@ -52,27 +102,12 @@ export default function Overview({sonntag, user, tipp}:
         </form>
       </>
     }
-    <div className={styles.songListe}>
-      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>100 - 81</div>
-      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>80 - 61</div>
-      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>60 - 41</div>
-      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>40 - 21</div>
-      <div className={styles.songItem} style={{backgroundColor: "transparent", fontWeight: 700, color: "#333"}}>20 - 1</div>
-      {bingofeld.map((song, index) => {
-        return <div onClick={() => setSongInputIndex(index)} 
-          className={styles.songItem} key={`song_${index}`}>{song.artist} - {song.title}</div>
-      })}
-    </div>
-    <ul>
-      {sonntag.playlist.map(({artist, title}, index) => {
-        return <li key={`${title}_${index}`}>{100 - index} {artist} - {title}</li>
-      })}
-    </ul>
+    <Bingofeld bingofeld={bingofeld} selectSong={(index) => setSongInputIndex(index)} selectedSongIndex={songInputIndex} bingofeldHits={tipp.tippStatus} />
+    <Playlist list={sonntag.playlist} />
   </>
 
 }
 
-// Serverseitiges Data Fetching mit Zugriff auf den dynamischen Slug
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {slug} = context.params!;
   const { userid } = context.req.cookies;
@@ -82,19 +117,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       notFound: true,
     }
   }
-
-  const user = await getUserById(userid);
-  
   if(slug === undefined || typeof slug !== "string") {
     return {
       notFound: true,
     }
   }
 
-  const tipp = await getTipp(userid, slug);
-
-
-  const sonntag = await getSonntagById(slug);
+  const [user, tipp, sonntag] = await Promise.all([getUserById(userid), getTipp(userid, slug), getSonntagById(slug)]);
 
   if (!sonntag || !user || !tipp) {
     return {
