@@ -26,6 +26,11 @@ export const getSonntage = async (): Promise<Array<Sonntag>> => {
   }));
 }
 
+export const updateUserTippStatus = async (tippId: string, tippStatus: Array<TippStatus>, punktzahl: number) => {
+  const docReference = doc(db, "tipps", tippId);
+  return setDoc(docReference, {tippStatus, punktzahl}, {merge: true});
+}
+
 export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: Array<Song>) => {
   const docReference = doc(db, "tipps", `${userid}_${sonntag}`);
   console.log(userid, sonntag, bingofeld)
