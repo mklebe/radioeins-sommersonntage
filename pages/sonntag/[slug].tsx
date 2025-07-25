@@ -142,6 +142,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const serializableSonntag: SerializableSonntag = {...sonntag, date: sonntag.date.toLocaleString()}
 
+  console.log("### Fetching new data");
+  console.log(tipp);
+
   return {
     props: {
       sonntag: serializableSonntag,
