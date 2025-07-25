@@ -41,9 +41,9 @@ export const getTipp = async (userid: string, sonntag: string): Promise<Tipp> =>
 
   if(docSnapshot.exists()) {
     return {
-      bingofeld: docSnapshot.data().bingofeld,
-      punktzahl: docSnapshot.data().punktzahl,
-      tippStatus: docSnapshot.data().tippStatus,
+      bingofeld: docSnapshot.data().bingofeld || Array(25).fill({artist: "", title: ""}),
+      punktzahl: docSnapshot.data().punktzahl || 0,
+      tippStatus: docSnapshot.data().tippStatus || Array(25).fill(TippStatus.NOT_HIT),
     };
   }
 
