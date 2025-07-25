@@ -1,14 +1,14 @@
 import { FirebaseOptions, getApp, getApps, initializeApp } from "firebase/app";
 import { collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
-import { Sonntag, Tipp, TippStatus, User } from "../types";
+import { Song, Sonntag, Tipp, TippStatus, User } from "../types";
 
 const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGE_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 // Initialize Firebase
 console.log(`Initializes app: ${getApps().length}`)
@@ -26,7 +26,7 @@ export const getSonntage = async (): Promise<Array<Sonntag>> => {
   }));
 }
 
-export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: Array<string>) => {
+export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: Array<Song>) => {
   const docReference = doc(db, "tipps", `${userid}_${sonntag}`);
   console.log(userid, sonntag, bingofeld)
   await setDoc(docReference, {bingofeld, tippStatus: Array(25).fill(TippStatus.NOT_HIT)}, { merge: true })

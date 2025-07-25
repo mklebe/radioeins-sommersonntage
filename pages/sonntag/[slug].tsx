@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext } from "next";
-import { getSonntagById, getTipp, getUserById } from "../../services/database";
+import { getSonntagById, getTipp, getUserById, saveUserTipp } from "../../services/database";
 import Link from "next/link";
 import { SerializableSonntag, Song, Tipp, TippStatus, User } from "../../types";
 import { useState } from "react";
@@ -72,14 +72,7 @@ export default function Overview({sonntag, user, tipp}:
       console.log(newBingofeld)
       setBingofeld(newBingofeld);
       setSongInputIndex(null);
-      fetch(`/api/user/tipp`, {
-        method: "POST",
-        body: JSON.stringify({
-          userid: user.id,
-          sonntag: sonntag.id,
-          bingofeld: JSON.stringify(newBingofeld),
-        }),
-      })
+      saveUserTipp(user.id, sonntag.id, newBingofeld);
     }
   }
 
