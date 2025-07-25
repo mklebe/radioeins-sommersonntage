@@ -1,10 +1,14 @@
 
 import Link from "next/link";
 import { getSonntage } from "../services/database";
+import { useEffect, useState } from "react";
+import { Sonntag } from "../types";
 
-export default async function Home() {
-  
-    const sonntage = await getSonntage();
+export default function Home() {
+  const [sonntage, setSonntage] = useState<Array<Sonntag>>([]);
+  useEffect(() => {
+    getSonntage().then((s) => setSonntage(s))
+  }, []);
 
   return (
     <div>
