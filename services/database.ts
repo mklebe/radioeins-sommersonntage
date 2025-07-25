@@ -1,4 +1,4 @@
-import { FirebaseOptions, initializeApp } from "firebase/app";
+import { FirebaseOptions, getApp, getApps, initializeApp } from "firebase/app";
 import { collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
 import { Sonntag, Tipp, TippStatus, User } from "../types";
 
@@ -11,7 +11,8 @@ const firebaseConfig: FirebaseOptions = {
   appId: process.env.FIREBASE_APP_ID,
 };
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+console.log(`Initializes app: ${getApps().length}`)
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export const getSonntage = async (): Promise<Array<Sonntag>> => {
