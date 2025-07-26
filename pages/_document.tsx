@@ -13,10 +13,8 @@ export default function MyDocument(props: DocumentHeadTagsProps) {
           <DocumentHeadTags {...props} />
        </Head>
        <body>
-        <header>Sommersonntage Tippspiel</header>
         <Main />
         <NextScript />
-        <footer></footer>
        </body>
      </Html>
    );

@@ -16,7 +16,7 @@ const protectedRoutes = [
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const isProtectedRoute = protectedRoutes.includes(path);
+  const isProtectedRoute = path.includes("/sonntag/");
   
   if (isProtectedRoute && !request.cookies.get("userid")) {
     return NextResponse.redirect(new URL('/login', request.nextUrl))

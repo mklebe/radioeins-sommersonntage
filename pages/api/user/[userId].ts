@@ -13,10 +13,10 @@ export default async function handler(request: NextApiRequest, response: NextApi
   if(!user) {
     return response.status(404).json({message: "User not found"});
   }
-  const cookie = serialize('userid', user.id, {
-      httpOnly: true,       // Kann im Browser nicht per JS ausgelesen werden
-      secure: process.env.NODE_ENV === 'production', // nur über HTTPS in prod
-      sameSite: 'strict',
+  const cookie = serialize('userid', userId , {
+      httpOnly: false,       // Kann im Browser nicht per JS ausgelesen werden
+      secure: false, // nur über HTTPS in prod
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 Tage in Sekunden
     });
@@ -24,5 +24,5 @@ export default async function handler(request: NextApiRequest, response: NextApi
     response.setHeader('Set-Cookie', cookie)
   
 
-  return response.status(200).json({ ...user, success: true })
+  return response.status(200).json({ success: true })
 }
