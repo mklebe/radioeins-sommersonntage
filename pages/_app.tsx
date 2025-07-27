@@ -10,7 +10,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     router.push("/login")
   };
 
-  return <AppCacheProvider {...pageProps}>
+  return <AppCacheProvider options={{ key: 'css' }} {...pageProps}>
     <Container>
       <NoSsr>
         <Box sx={{flexGrow: 1}}>

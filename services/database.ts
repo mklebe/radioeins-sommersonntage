@@ -1,6 +1,7 @@
 import { FirebaseOptions, getApp, getApps, initializeApp } from "firebase/app";
 import { collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
 import { Song, Sonntag, Tipp, TippStatus, User } from "../types";
+import { PlaylistSong } from "../pages/updatePage";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -57,6 +58,22 @@ export const getTipp = async (userid: string, sonntag: string): Promise<Tipp> =>
     punktzahl: 0,
     tippStatus: Array(25).fill(TippStatus.NOT_HIT),
   };
+}
+
+export const getAllTipsBySonntag = async (sonntag: string) => {
+  const tippsSnapshots = await getDocs(collection(db, "tipps"));
+  const sonntagsTipps = tippsSnapshots.docs
+    .filter((ts) => ts.id.includes(sonntag))
+    .map((doc) => ({
+      id: doc.id,
+      bingofeld: doc.data().bingofeld
+    }));
+    return sonntagsTipps;
+}
+
+export const updateSonntagsPlaylist = async (documentId: string, playlist: Array<PlaylistSong>) => {
+  const docReference = doc(db, "sonntag", documentId);
+  await setDoc(docReference, {playlist}, {merge: true});
 }
 
 export const getSonntagById = async (documentId: string): Promise<Sonntag|null> => {

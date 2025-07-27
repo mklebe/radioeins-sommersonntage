@@ -1,29 +1,108 @@
 import { GetServerSidePropsContext } from "next";
-import { getSonntagById, getTipp, updateUserTippStatus } from "../services/database";
-import { TippStatus } from "../types";
-import { Container, Typography } from "@mui/material";
+import { getAllTipsBySonntag, getSonntagById, getTipp, updateSonntagsPlaylist, updateUserTippStatus } from "../services/database";
+import { Song, TippStatus } from "../types";
+import { Container } from "@mui/material";
+import Fuse from 'fuse.js';
+import { Top100OneLove } from "../sonntag";
+// const jsdom = require("jsdom");
+// const { JSDOM } = jsdom;
 
-export default function UpdatePage({punktzahl}: {punktzahl: number}) {
+interface UpdateProps {
+  punktzahl: number;
+  headlines: Array<string>,
+}
+
+
+export default function UpdatePage({punktzahl, headlines }: UpdateProps) {
   return <Container>
-      <Typography>Great Success, never saw a better update!</Typography>
+      {/* <Typography>Great Success, never saw a better update!</Typography>
       <Typography>New Points {punktzahl}</Typography>
+      {playlist.map(ts => <Typography key={ts.time}>{ts.time} : {ts.artist} - {ts.title}</Typography>)} */}
     </Container>
 }
 
+export interface PlaylistSong extends Song {
+  position: number;
+}
+
+const SONNTAGS_ID = "Top100OneLove"
+
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const userId = "1";
-  const sonntagsId = "Top100TestSonntage";
-  const tippId = `${userId}_${sonntagsId}`;
+  // const sonntag = await getSonntagById("Top100TestSonntage")
+  // if (!sonntag) {
+  //   return {
+  //     notFound: true,
+  //   }
+  // }
+  const playlist = Top100OneLove;
 
-  const [tipp, sonntag] = await Promise.all([getTipp(userId, sonntagsId), getSonntagById(sonntagsId)]);
+  if(!playlist) {
+    return false;
+  }
+  const rankedSonntagsListe: Array<PlaylistSong>  = playlist.map((s: Song, index: number) => ({
+    ...s,
+    position: 100 - index,
+  }));
+  
+  updateSonntagsPlaylist(SONNTAGS_ID, rankedSonntagsListe);
+  const tipps = await getAllTipsBySonntag(SONNTAGS_ID)
+  console.log(tipps)
 
-  const tippStatus = tipp.tippStatus || Array(25).fill(TippStatus.IN_LIST)
-  let punktzahl = calculatePositionPointsForTipps(tippStatus);
-  punktzahl += calculateBingoPoints(tippStatus);
-  punktzahl += calculatePointsForCorrectWinner(tippStatus);
-  updateUserTippStatus(tippId, tippStatus, punktzahl);
-  return {props: {punktzahl}};
+  tipps.forEach( async (t) => {
+    const hitsForField = retrieveHitsForBingofeld(t.bingofeld, rankedSonntagsListe);
+    let punktzahl = calculatePositionPointsForTipps(hitsForField);
+    punktzahl += calculateBingoPoints(hitsForField);
+    punktzahl += calculatePointsForCorrectWinner(hitsForField);
+    console.info(`Updated list ${t.id} with ${punktzahl} points`)
+    await updateUserTippStatus(t.id, hitsForField, punktzahl);
+  });
+
+
+
+  return {props: {}};
 };
+
+const setUpSearchIndicies = (sonntagsPlaylist : Array<PlaylistSong>) => {
+  const fuseConfig = {shouldSort: true,
+    threshold: 0.25,
+    includeScore: true,
+  };
+  const artistIndex = new Fuse(sonntagsPlaylist, {
+    ...fuseConfig,
+    keys: ["artist"]
+  });
+  const titleIndex = new Fuse(sonntagsPlaylist, {
+    ...fuseConfig,
+    keys: ["title"]
+  });
+  return {artistIndex, titleIndex};
+} 
+
+const retrieveHitsForBingofeld = (bingofeld: Array<Song>, sonntagsPlaylist: Array<PlaylistSong>) => {
+  const hitsForField: Array<TippStatus> = [];
+  const {artistIndex, titleIndex} = setUpSearchIndicies(sonntagsPlaylist)
+  bingofeld.forEach((song, index) => {
+    const artistHits = artistIndex.search(song.artist).map(item => item.item);
+    if (!artistHits) {
+      hitsForField[index] = TippStatus.NOT_HIT;
+      return;
+    }
+    const titleHits = titleIndex.search(song.title).map(item => item.item);
+    if(!titleHits) {
+      hitsForField[index] = TippStatus.NOT_HIT;
+      return;
+    }
+    const hit = artistHits.filter((value) => titleHits.includes(value))[0]
+    if(!hit) {
+      hitsForField[index] = TippStatus.NOT_HIT;
+      return;
+    }
+
+    hitsForField[index] = TippStatus.IN_LIST;
+  });
+
+  return hitsForField;
+}; 
 
 const pointsPerHit = new Map<TippStatus, number>();
 pointsPerHit.set(TippStatus.NOT_HIT, 0);
