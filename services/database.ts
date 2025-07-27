@@ -64,10 +64,16 @@ export const getAllTipsBySonntag = async (sonntag: string) => {
   const tippsSnapshots = await getDocs(collection(db, "tipps"));
   const sonntagsTipps = tippsSnapshots.docs
     .filter((ts) => ts.id.includes(sonntag))
-    .map((doc) => ({
-      id: doc.id,
-      bingofeld: doc.data().bingofeld
-    }));
+    .map((doc) => {
+      const joker = +doc.data().joker
+      return {
+        id: doc.id,
+        bingofeld: doc.data().bingofeld,
+        joker,
+        tippStatus: doc.data().tippStatus,
+        punktzahl: +doc.data().punktzahl,
+      }
+    });
     return sonntagsTipps;
 }
 

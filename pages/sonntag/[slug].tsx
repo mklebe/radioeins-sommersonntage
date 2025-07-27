@@ -44,17 +44,6 @@ function Bingofeld({bingofeld, selectSong, selectedSongIndex, bingofeldHits}: Bi
     </Box>
 }
 
-type PlaylistProps = {
-  list: Array<Song>,
-}
-function Playlist({list}: PlaylistProps) {
-  return <List>
-      {list.map(({artist, title}, index) => {
-        return <ListItem key={`${title}_${index}`}>{100 - index} {artist} - {title}</ListItem>
-      })}
-    </List>
-}
-
 export default function Overview({sonntag, user, tipp}: 
   {sonntag: SerializableSonntag, user: User, tipp: Tipp} ) {
   const [songInputIndex, setSongInputIndex] = useState<number|null>(null);
@@ -95,7 +84,6 @@ export default function Overview({sonntag, user, tipp}:
       </>
     }
     <Bingofeld bingofeld={bingofeld} selectSong={(index) => {setSongInputIndex(index)}} selectedSongIndex={songInputIndex} bingofeldHits={tipp.tippStatus} />
-    <Playlist list={sonntag.playlist} />
   </>
 
 }
