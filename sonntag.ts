@@ -286,5 +286,117 @@ export const Top100OneLove = [
     {
         "artist": "Jimmy Cliff",
         "title": "You Can Get It If You Really Want"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "One Love"
+    },
+    {
+        "artist": "The Mighty Mighty Bosstones",
+        "title": "The Impression That I Get"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "Three Little Birds"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "I Shot The Sheriff"
+    },
+    {
+        "artist": "Peter Tosh",
+        "title": "Legalize It"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "Get Up Stand Up"
+    },
+    {
+        "artist": "Seeed",
+        "title": "Papa Noah"
+    },
+    {
+        "artist": "10CC",
+        "title": "Dreadlock Holiday"
+    },
+    {
+        "artist": "Rancid",
+        "title": "Time Bomb"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "Is This Love"
+    },
+    {
+        "artist": "The Specials",
+        "title": "Gangsters"
+    },
+    {
+        "artist": "Toots & The Maytals",
+        "title": "Pressure drop"
+    },
+    {
+        "artist": "The Clash",
+        "title": "The Guns Of Brixton"
+    },
+    {
+        "artist": "Dandy Livingstone",
+        "title": "Rudy, A Message To You"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "Could You Be Loved"
+    },
+    {
+        "artist": "Junior Murvin",
+        "title": "Police & Thieves"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "Jammin'"
+    },
+    {
+        "artist": "Toots feat. The Maytals",
+        "title": "54-46, That's my Number"
+    },
+    {
+        "artist": "Seeed",
+        "title": "Aufstehn!"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "No Woman, No Cry"
+    },
+    {
+        "artist": "Bob Marley & The Wailers",
+        "title": "Redemption Song"
+    },
+    {
+        "artist": "Sister Nancy",
+        "title": "Bam Bam"
+    },
+    {
+        "artist": "Madness",
+        "title": "One Step Beyond"
+    },
+    {
+        "artist": "Desmond Dekker & The Aces",
+        "title": "The Israelites"
+    },
+    {
+        "artist": "Dawn Penn",
+        "title": "You don't love me (no, no, no)"
+    },
+    {
+        "artist": "The Specials",
+        "title": "A Message To You, Rudy"
+    },
+    {
+        "artist": "The Specials",
+        "title": "Ghost Town"
+    },
+    {
+        "artist": "Max Romeo & The Upsetters",
+        "title": "Chase The Devil"
     }
 ];

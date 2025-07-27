@@ -46,7 +46,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   
   updateSonntagsPlaylist(SONNTAGS_ID, rankedSonntagsListe);
   const tipps = await getAllTipsBySonntag(SONNTAGS_ID)
-  console.log(tipps)
 
   tipps.forEach( async (t) => {
     const hitsForField = retrieveHitsForBingofeld(t.bingofeld, rankedSonntagsListe);
@@ -76,7 +75,27 @@ const setUpSearchIndicies = (sonntagsPlaylist : Array<PlaylistSong>) => {
     keys: ["title"]
   });
   return {artistIndex, titleIndex};
-} 
+}
+
+const spaltenHit = (spaltenNummer: number, position: number) => {
+  if(spaltenNummer === 0) {
+    return position > 80 && position <= 100;
+  }
+  else if (spaltenNummer === 1) {
+    return position > 60 && position <= 80;
+  }
+  else if (spaltenNummer === 2) {
+    return position > 40 && position <= 60;
+  }
+  else if (spaltenNummer === 3) {
+    return position > 20 && position <= 40;
+  }
+  else if (spaltenNummer === 4) {
+    return position > 0 && position <= 20;
+  }
+
+  return false;
+}
 
 const retrieveHitsForBingofeld = (bingofeld: Array<Song>, sonntagsPlaylist: Array<PlaylistSong>) => {
   const hitsForField: Array<TippStatus> = [];
@@ -98,6 +117,11 @@ const retrieveHitsForBingofeld = (bingofeld: Array<Song>, sonntagsPlaylist: Arra
       return;
     }
 
+    if(spaltenHit(index % 5, hit.position)) {
+      hitsForField[index] = TippStatus.CORRECT_COLUMN;
+      return;
+    }
+
     hitsForField[index] = TippStatus.IN_LIST;
   });
 
@@ -112,7 +136,7 @@ pointsPerHit.set(TippStatus.CORRECT_WINNER, 3);
 pointsPerHit.set(TippStatus.JOKER, 0)
 
 const calculatePositionPointsForTipps = (tipps: Array<TippStatus>): number => {
-  return tipps.reduce((acc, current) => acc + pointsPerHit.get(current)!);
+  return tipps.reduce((acc, current) => acc + pointsPerHit.get(current)!, 0);
 }
 
 const calculateBingoPoints = (tipps: Array<TippStatus>): number => {
