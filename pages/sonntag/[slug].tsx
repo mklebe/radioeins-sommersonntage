@@ -66,10 +66,8 @@ export default function Overview({sonntag, user, tipp}:
         artist: formData.get("artist")?.valueOf() as string || "",
         title: formData.get("title")?.valueOf() as string || "",
       }
-      console.log(newTipp);
       const newBingofeld = [...bingofeld];
       newBingofeld[songInputIndex] = newTipp;
-      console.log(newBingofeld)
       setBingofeld(newBingofeld);
       setSongInputIndex(null);
       saveUserTipp(user.id, sonntag.id, newBingofeld);
@@ -88,16 +86,15 @@ export default function Overview({sonntag, user, tipp}:
         <label>Lied: <input name="title" type="text" defaultValue={bingofeld[songInputIndex].title} /></label><br />
         <br />
         <div style={{display: "flex", alignContent: "space-between"}}>
-
-        <button style={{marginRight: 32}} type="reset" onClick={() => setSongInputIndex(null)}>schließen</button>
-        <button type="submit">Speichern</button>
+          <button style={{marginRight: 32}} type="reset" onClick={() => setSongInputIndex(null)}>schließen</button>
+          <button type="submit">Speichern</button>
         </div>
         <br />
         <br />
         </form>
       </>
     }
-    <Bingofeld bingofeld={bingofeld} selectSong={(index) => setSongInputIndex(index)} selectedSongIndex={songInputIndex} bingofeldHits={tipp.tippStatus} />
+    <Bingofeld bingofeld={bingofeld} selectSong={(index) => {setSongInputIndex(index)}} selectedSongIndex={songInputIndex} bingofeldHits={tipp.tippStatus} />
     <Playlist list={sonntag.playlist} />
   </>
 
@@ -134,9 +131,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   const serializableSonntag: SerializableSonntag = {...sonntag, date: sonntag.date.toLocaleString()}
-
-  console.log("### Fetching new data");
-  console.log(tipp);
 
   return {
     props: {
