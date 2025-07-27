@@ -49,6 +49,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   tipps.forEach( async (t) => {
     const hitsForField = retrieveHitsForBingofeld(t.bingofeld, rankedSonntagsListe);
+    if(typeof t.joker === "number") {
+      hitsForField[t.joker] = TippStatus.JOKER;
+    }
     let punktzahl = calculatePositionPointsForTipps(hitsForField);
     punktzahl += calculateBingoPoints(hitsForField);
     punktzahl += calculatePointsForCorrectWinner(hitsForField);
