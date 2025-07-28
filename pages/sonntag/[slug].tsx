@@ -2,8 +2,8 @@ import { GetServerSidePropsContext } from "next";
 import { getSonntagById, getTipp, getUserById, saveUserTipp } from "../../services/database";
 import Link from "next/link";
 import { SerializableSonntag, Song, Tipp, TippStatus, User } from "../../types";
-import { useState } from "react";
-import { Box, List, ListItem, Paper } from "@mui/material";
+import { FormEvent, useEffect, useState } from "react";
+import { Box, Paper, Typography } from "@mui/material";
 
 const tippStatusColorMapping = new Map<TippStatus, string>();
 tippStatusColorMapping.set(TippStatus.NOT_HIT, "transparent");
@@ -43,45 +43,73 @@ function Bingofeld({bingofeld, selectSong, selectedSongIndex, bingofeldHits}: Bi
       })}
     </Box>
 }
+interface UpdateBingoFeldProps {
+  initialSong: Song;
+  closeForm: () => void;
+  saveSong: (song: Song) => void;
+}
+function UpdateBingoFeld({initialSong, closeForm, saveSong}: UpdateBingoFeldProps) {
+  const [song, setSong] = useState<Song>(initialSong);
+  useEffect(() => {
+    setSong(initialSong);
+  }, [initialSong]);
+
+  const saveTipp = (evt: FormEvent) => {
+    evt.preventDefault();
+    saveSong(song);
+    setSong({
+      artist: "",
+      title: "",
+    })
+    closeForm();
+  }
+  return <form onSubmit={saveTipp}>
+          <label>Künstler: <input name="artist" type="text" value={song.artist} onChange={(evt) => {
+            setSong({
+              ...song,
+              artist: evt.target.value,
+            });
+          }} /></label><br />
+          <label>Lied: <input name="title" type="text" value={song.title} onChange={(evt) => {
+            setSong({
+              ...song,
+              title: evt.target.value,
+            });
+          }} /></label><br />
+          <br />
+          <div style={{display: "flex", alignContent: "space-between"}}>
+            <button style={{marginRight: 32}} type="reset" onClick={() => closeForm()}>schließen</button>
+            <button type="submit">Speichern</button>
+          </div>
+          <br />
+          <br />
+        </form>
+}
 
 export default function Overview({sonntag, user, tipp}: 
   {sonntag: SerializableSonntag, user: User, tipp: Tipp} ) {
   const [songInputIndex, setSongInputIndex] = useState<number|null>(null);
   const [bingofeld, setBingofeld] = useState<Array<Song>>(tipp.bingofeld);
 
-  const saveTipp = (formData: FormData) => {
+  const saveTipp = (song: Song) => {
     if(typeof songInputIndex === "number") {
-      const newTipp = {
-        artist: formData.get("artist")?.valueOf() as string || "",
-        title: formData.get("title")?.valueOf() as string || "",
-      }
       const newBingofeld = [...bingofeld];
-      newBingofeld[songInputIndex] = newTipp;
+      newBingofeld[songInputIndex] = song;
       setBingofeld(newBingofeld);
-      setSongInputIndex(null);
       saveUserTipp(user.id, sonntag.id, newBingofeld);
     }
   }
 
   return <>
     <Link href="/sonntag">Zurück zur Übersicht</Link>
-    <h1>{sonntag.name}</h1>
-    <p>Playlist startet: {sonntag.date}</p>
-    <p>Tipps von: {user.name}</p>
-    <p>Punkte für diese List: {tipp.punktzahl}</p>
-    {typeof songInputIndex === "number" && <>
-      <form action={saveTipp}>
-        <label>Künstler: <input name="artist" type="text" defaultValue={bingofeld[songInputIndex].artist} /></label><br />
-        <label>Lied: <input name="title" type="text" defaultValue={bingofeld[songInputIndex].title} /></label><br />
-        <br />
-        <div style={{display: "flex", alignContent: "space-between"}}>
-          <button style={{marginRight: 32}} type="reset" onClick={() => setSongInputIndex(null)}>schließen</button>
-          <button type="submit">Speichern</button>
-        </div>
-        <br />
-        <br />
-        </form>
-      </>
+    <Typography variant="h4">{sonntag.name}</Typography>
+    <Typography mb="24px">Um alle Felder auszufüllen brauchst du noch {bingofeld.filter(a => a.artist === "").length} Songs</Typography>
+    {typeof songInputIndex === "number" &&
+        <UpdateBingoFeld 
+          closeForm={() => setSongInputIndex(null)}
+          initialSong={bingofeld[songInputIndex]}
+          saveSong={saveTipp}
+        />
     }
     <Bingofeld bingofeld={bingofeld} selectSong={(index) => {setSongInputIndex(index)}} selectedSongIndex={songInputIndex} bingofeldHits={tipp.tippStatus} />
   </>
