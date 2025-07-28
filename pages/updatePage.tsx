@@ -4,8 +4,6 @@ import { Song, TippStatus } from "../types";
 import { Container } from "@mui/material";
 import Fuse from 'fuse.js';
 import { Top100OneLove } from "../sonntag";
-// const jsdom = require("jsdom");
-// const { JSDOM } = jsdom;
 
 interface UpdateProps {
   punktzahl: number;
@@ -25,7 +23,7 @@ export interface PlaylistSong extends Song {
   position: number;
 }
 
-const SONNTAGS_ID = "Top100OneLove"
+const SONNTAGS_ID = "Top100NurEinWort"
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   // const sonntag = await getSonntagById("Top100TestSonntage")
