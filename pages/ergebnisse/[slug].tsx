@@ -48,18 +48,11 @@ interface OverviewProps {
 
 export default function Overview({ user, tipps, sonntagsName}: OverviewProps
    ) {
-    console.log(tipps.length);
-  
-    
-
-    return <>
+  return <>
       <Link href="/sonntag">Zurück zur Übersicht</Link>
       <h1>{sonntagsName}</h1>
       <p>Tipps von: {user.name}</p>
-
-      
-
-        {tipps.map((t) => {
+      {tipps.map((t) => {
           return <Accordion key={`usertipp_${t.user.id}`}>
             <AccordionSummary >
               <Typography variant="h6">Liste von {t.user.name} mit {t.punktzahl} Punkten</Typography>

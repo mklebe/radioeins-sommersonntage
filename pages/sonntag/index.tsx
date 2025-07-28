@@ -2,18 +2,25 @@ import Link from "next/link";
 import { getSonntage, getUserById } from "../../services/database";
 import { SerializableSonntag, Sonntag, User } from "../../types";
 import { GetServerSidePropsContext } from "next";
-import { Box, Card, Typography } from "@mui/material";
+import { Box, Card, Grid, Typography } from "@mui/material";
 
 export default function SonntagPage({ sonntage, user }: {sonntage: Array<Sonntag>, user: User}) {
   return (
     <div>
       <Typography variant="h2" mb="24px">Hallo {user.name}</Typography>
       <Typography variant="h4" mb="16px">Tippabgaben</Typography>
-      <Box
+      <Grid
         display="grid"
-        gridTemplateColumns="repeat(5, 1fr)"
         gap={2}
         mb="24px"
+        sx={{
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(3, 1fr)',
+            md: 'repeat(5, 1fr)'
+          }
+        }}
+        
       >
         {sonntage
           .map(( {id, name, date} ) => {
@@ -26,7 +33,7 @@ export default function SonntagPage({ sonntage, user }: {sonntage: Array<Sonntag
               </Card>
             )
           })}
-      </Box>
+      </Grid>
       <Typography variant="h4" mb="16px">Ergebnisse</Typography>
       <Box
         display="grid"
@@ -63,6 +70,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   const sortedSonntage = sonntage
+    .filter((a) => a.date.getTime() > new Date().getTime())
     .sort((a, b) => a.date.getTime() - b.date.getTime())
 
   const serializableSonntag: Array<SerializableSonntag> = sortedSonntage.map((s: Sonntag) => ({
