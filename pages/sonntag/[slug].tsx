@@ -86,8 +86,13 @@ function UpdateBingoFeld({initialSong, closeForm, saveSong}: UpdateBingoFeldProp
         </form>
 }
 
-export default function Overview({sonntag, user, tipp}: 
-  {sonntag: SerializableSonntag, user: User, tipp: Tipp} ) {
+interface OverviewProps  {
+  sonntag: SerializableSonntag;
+  user: User;
+  tipp: Tipp;
+  isLocked: boolean;
+}
+export default function Overview({sonntag, user, tipp, isLocked}: OverviewProps ) {
   const [songInputIndex, setSongInputIndex] = useState<number|null>(null);
   const [bingofeld, setBingofeld] = useState<Array<Song>>(tipp.bingofeld);
 
@@ -104,7 +109,7 @@ export default function Overview({sonntag, user, tipp}:
     <Link href="/sonntag">Zurück zur Übersicht</Link>
     <Typography variant="h4">{sonntag.name}</Typography>
     <Typography mb="24px">Um alle Felder auszufüllen brauchst du noch {bingofeld.filter(a => a.artist === "").length} Songs</Typography>
-    {typeof songInputIndex === "number" &&
+    {!isLocked && typeof songInputIndex === "number" &&
         <UpdateBingoFeld 
           closeForm={() => setSongInputIndex(null)}
           initialSong={bingofeld[songInputIndex]}
@@ -153,6 +158,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       sonntag: serializableSonntag,
       user: transferredUser,
       tipp,
+      isLocked: sonntag.date.getTime() < new Date().getTime()
     },
   }
 }
