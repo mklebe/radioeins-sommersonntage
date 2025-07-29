@@ -5,6 +5,7 @@ import { serialize } from "cookie";
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
   const { userId } = request.query;
+  console.log(`Setting login cookie for ${userId}`);
   if(userId === undefined || typeof userId !== "string") {
     return response.status(404).json({message: "User not found"});
   }
