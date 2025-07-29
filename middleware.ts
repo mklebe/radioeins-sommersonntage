@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
   const useridFromCookie = request.cookies.get("userid");
   
   if (isProtectedRoute) {
-    console.log("Middleware cookie value", useridFromCookie)
+    console.log("Middleware cookie value", useridFromCookie, request.referrer, request.cookies)
     if(!useridFromCookie || !useridFromCookie.value) {
       return NextResponse.redirect(new URL('/login', request.nextUrl))
     }
