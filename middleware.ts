@@ -6,9 +6,12 @@ import type { NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isProtectedRoute = path.includes("/sonntag/");
+  const useridFromCookie = request.cookies.get("userid");
   
-  if (isProtectedRoute && !request.cookies.get("userid")) {
-    return NextResponse.redirect(new URL('/login', request.nextUrl))
+  if (isProtectedRoute) {
+    if(!useridFromCookie || !useridFromCookie.value) {
+      return NextResponse.redirect(new URL('/login', request.nextUrl))
+    }
   }
 
   return NextResponse.next()

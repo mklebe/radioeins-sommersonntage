@@ -3,6 +3,7 @@ import { getSonntage, getUserById } from "../../services/database";
 import { SerializableSonntag, Sonntag, User } from "../../types";
 import { GetServerSidePropsContext } from "next";
 import { Box, Card, Grid, Typography } from "@mui/material";
+import { redirect } from "next/navigation";
 
 export default function SonntagPage({ sonntage, user }: {sonntage: Array<Sonntag>, user: User}) {
   return (
@@ -37,7 +38,13 @@ export default function SonntagPage({ sonntage, user }: {sonntage: Array<Sonntag
       <Typography variant="h4" mb="16px">Ergebnisse</Typography>
       <Box
         display="grid"
-        gridTemplateColumns="repeat(5, 1fr)"
+        sx={{
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(3, 1fr)',
+            md: 'repeat(5, 1fr)'
+          }
+        }}
         gap={2}
       >
               <Card sx={{p: "8px"}}>
@@ -56,14 +63,27 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { userid } = context.req.cookies;
 
   if(userid === undefined) {
+    console.warn(`Called /sonntag without userid, redirecting to login page`);
     return {
-      notFound: true,
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      }
     }
   }
 
   const user = await getUserById(userid);
+  if(!user) {
+    console.warn(`Could not retrieve user with id ${userid}, redirecting to login page.`);
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      }
+    }
+  }
 
-  if (!sonntage || !user) {
+  if (!sonntage) {
     return {
       notFound: true,
     }
