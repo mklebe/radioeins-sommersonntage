@@ -1,12 +1,20 @@
+import styled from '@emotion/styled';
 import { AppBar, Box, Button, Container, NoSsr, Toolbar, Typography } from '@mui/material'
 import { AppCacheProvider } from '@mui/material-nextjs/v13-pagesRouter'
+import { deleteCookie } from 'cookies-next';
 import type { AppProps } from 'next/app'
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+
+const StyledLink = styled(Link)`
+  color: inherit;
+  underline: none;
+`
  
 export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const logout = () => {
-    document.cookie = "userid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    deleteCookie("userid");
     router.push("/login")
   };
 
@@ -16,7 +24,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <Box sx={{flexGrow: 1}}>
           <AppBar>
             <Toolbar>
-              <Typography variant='h6' sx={{flexGrow: 1}}>Sommer Sonntage</Typography>
+              <Typography variant='h6' sx={{flexGrow: 1}}><StyledLink color="inherit" href="/">Sommer Sonntage</StyledLink></Typography>
               <Button variant='outlined' sx={{color: 'white'}} onClick={() => logout()}>Abmelden</Button>
             </Toolbar>
           </AppBar>
