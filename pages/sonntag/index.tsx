@@ -3,9 +3,8 @@ import { getSonntage, getUserById } from "../../services/database";
 import { SerializableSonntag, Sonntag, User } from "../../types";
 import { GetServerSidePropsContext } from "next";
 import { Box, Card, Grid, Typography } from "@mui/material";
-import { redirect } from "next/navigation";
 
-export default function SonntagPage({ sonntage, user }: {sonntage: Array<Sonntag>, user: User}) {
+export default function SonntagPage({ sonntage, user, results }: {sonntage: Array<SerializableSonntag>, user: User, results: Array<SerializableSonntag>}) {
   return (
     <div>
       <Typography variant="h2" mb="24px">Hallo {user.name}</Typography>
@@ -29,7 +28,7 @@ export default function SonntagPage({ sonntage, user }: {sonntage: Array<Sonntag
               <Card sx={{p: "8px"}} key={name}>
                 <Link key={id} href={`/sonntag/${id}`}>
                   {name}<br /><br />
-                  {date.toLocaleString()}
+                  {date}
                 </Link>
               </Card>
             )
@@ -47,12 +46,16 @@ export default function SonntagPage({ sonntage, user }: {sonntage: Array<Sonntag
         }}
         gap={2}
       >
-              <Card sx={{p: "8px"}}>
-                <Link href={`/ergebnisse/Top100OneLove`}>
-                  One Love - Die 100 besten Reggae Songs inkl. Ska & Dub
-
+        {results
+          .map(( {id, name} ) => {
+            return (
+              <Card sx={{p: "8px"}} key={name}>
+                <Link key={id} href={`/ergebnisse/${id}`}>
+                  {name}<br /><br />
                 </Link>
               </Card>
+            )
+          })}
       </Box>
     </div>
   )
@@ -93,12 +96,20 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     .filter((a) => a.date.getTime() > new Date().getTime())
     .sort((a, b) => a.date.getTime() - b.date.getTime())
 
+  const sealedSonntage: Array<SerializableSonntag> = sonntage
+    .filter((a) => a.date.getTime() < new Date().getTime())
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .map((s: Sonntag) => ({
+      ...s,
+      date: s.date.toLocaleDateString(),
+    }))
+
   const serializableSonntag: Array<SerializableSonntag> = sortedSonntage.map((s: Sonntag) => ({
     ...s,
     date: s.date.toLocaleDateString(),
   }))
 
   return {
-    props: {sonntage: serializableSonntag, user},
+    props: {sonntage: serializableSonntag, user, results: sealedSonntage},
   }
 };
