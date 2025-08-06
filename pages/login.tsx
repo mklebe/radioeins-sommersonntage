@@ -4,10 +4,13 @@ import { FormEvent, useState } from "react";
 import { getUserById } from "../services/database";
 import { setCookie } from "cookies-next";
 
+const REDIRECT_TIMEOUT_START = 10;
+
 export default function Home() {
   const router = useRouter();
   const [loginStateMessage, setLoginStateMessage] = useState<string>("");
   const [userId, setUserId] = useState<string | null>(null);
+  const [redirectCountdown, setRedirectCountdown] = useState<number>(REDIRECT_TIMEOUT_START);
 
   const login = async (evt: FormEvent) => {
     evt.preventDefault();
@@ -19,7 +22,13 @@ export default function Home() {
     if (user) {
       setCookie("userid", userId);
       router.push("/sonntag")
-      setLoginStateMessage("Login Erfolgreich");
+      setLoginStateMessage(`Login Erfolgreich. Automatische weiterleitung aktiv. `);
+      const intervalHandle = window.setInterval(() => {
+        setRedirectCountdown(redirectCountdown-1);
+        if(redirectCountdown === 0) {
+          window.clearInterval(intervalHandle);
+        }
+      }, 1_000)
     } else {
       setLoginStateMessage(`Konnte Nutzer ${userId} nicht anmelden. Bitte kontaktiere den Admin.`);
     }
@@ -33,6 +42,8 @@ export default function Home() {
         <button type="submit">Anmelden</button>
       </form>
       <Typography mt="24px" variant="body1">{loginStateMessage}</Typography>
+      {redirectCountdown !== REDIRECT_TIMEOUT_START && <Typography>...{redirectCountdown}</Typography>}
+      {/* {redirectCountdown === 0 && } */}
     </div>
   );
 };

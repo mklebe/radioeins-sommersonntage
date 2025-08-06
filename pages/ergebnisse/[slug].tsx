@@ -2,7 +2,7 @@ import { GetServerSidePropsContext } from "next";
 import { getAllTipsBySonntag, getSonntagById, getUserById } from "../../services/database";
 import Link from "next/link";
 import { Song, Tipp, TippStatus, User } from "../../types";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Paper, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 
 const tippStatusColorMapping = new Map<TippStatus, string>();
 tippStatusColorMapping.set(TippStatus.NOT_HIT, "transparent");
@@ -40,20 +40,75 @@ function Bingofeld({bingofeld, bingofeldHits}: BingofeldProps) {
     </Box>
 }
 
+type PlaylistProps = {
+  list: Array<Song>,
+}
+function Playlist({list}: PlaylistProps) {
+  return <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>#</TableCell>
+            <TableCell>Song</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {list.map(({artist, title}, index) => {
+            return <TableRow key={`${title}_${index}`}>
+              <TableCell>{1 + index}</TableCell>
+              <TableCell>{artist} - {title}</TableCell>
+            </TableRow>
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
+}
+
 interface OverviewProps {
   user: User,
   tipps: Array<Tipp & {user: User}>,
   sonntagsName: string,
+  sonntagPlaylist: Array<Song>,
 }
 
-export default function Overview({ user, tipps, sonntagsName}: OverviewProps
+export default function Overview({ user, tipps, sonntagsName, sonntagPlaylist}: OverviewProps
    ) {
   return <>
       <Link href="/sonntag">Zurück zur Übersicht</Link>
-      <h1>{sonntagsName}</h1>
-      <p>Tipps von: {user.name}</p>
+      <Typography variant="h6" mb="32px">{sonntagsName}</Typography>
+      <Grid container>
+        <Grid size={8} gap={2}>
+          <Typography variant="h6">Sonntags Playliste</Typography>
+          <Playlist list={sonntagPlaylist.reverse()} />
+        </Grid>
+        <Grid size={4}>
+          <Typography variant="h6">Spieler Punkte</Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Spieler</TableCell>
+                  <TableCell align="right">Punktzahl</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+
+              </TableBody>
+              {tipps.map((t, index) => {
+                return <TableRow key={`score_${index}`}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{t.user.name}</TableCell>
+                    <TableCell align="right">{t.punktzahl}</TableCell>
+                </TableRow>
+              })}
+            </Table>
+          </TableContainer>
+          <Link href="#nutzerlisten">Tipps aller Spieler</Link>
+        </Grid>
+      </Grid>
       {tipps.map((t) => {
-          return <Accordion key={`usertipp_${t.user.id}`}>
+          return <Accordion id="nutzerlisten" key={`usertipp_${t.user.id}`}>
             <AccordionSummary >
               <Typography variant="h6">Liste von {t.user.name} mit {t.punktzahl} Punkten</Typography>
             </AccordionSummary>
@@ -67,7 +122,7 @@ export default function Overview({ user, tipps, sonntagsName}: OverviewProps
 
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getServerSideProps(context: GetServerSidePropsContext): Promise<{props: OverviewProps} | {notFound: boolean}> {
   const {slug} = context.params!;
   const { userid } = context.req.cookies;
 
@@ -106,6 +161,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   return {
     props: {
       sonntagsName: sonntag.name,
+      sonntagPlaylist: sonntag.playlist,
       user: transferredUser,
       tipps: userTipps,
     },
