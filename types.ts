@@ -1,3 +1,5 @@
+import { PlaylistSong } from "./pages/updatePage";
+
 export interface Song {
   artist: string;
   title: string;
@@ -7,7 +9,7 @@ export interface Sonntag {
     id: string;
     name: string;
     date: Date;
-    playlist: Array<Song>
+    playlist: Array<PlaylistSong>
 };
 
 export type SerializableSonntag = Omit<Sonntag, "date"> & {"date": string};
@@ -26,11 +28,11 @@ export enum TippStatus {
     CORRECT_WINNER,
 }
 
-export interface Tipp {
-    punktzahl: number;
-    bingofeld: Array<Song>;
-    tippStatus: Array<TippStatus>
-};
+// export interface Tipp {
+//     punktzahl: number;
+//     bingofeld: Array<Song>;
+//     tippStatus: Array<TippStatus>
+// };
 
 export interface SonntagsTipp {
     id: string;

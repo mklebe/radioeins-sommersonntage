@@ -36,10 +36,20 @@ playlistPages.set("Top100NurEinWort", [
   "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250803_0900.html",
   "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250803_1200.html",
   "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250803_1500.html",
-])
+]);
+playlistPages.set("Top100OneLove", [
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/07/250727_0900.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/07/250727_1200.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/07/250727_1500.html",
+]);
+playlistPages.set("Top100Darkness", [
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250810_0900.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250810_1200.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250810_1500.html",
+]);
 
-export const getLivePunkte = async () => {
-  const pages = playlistPages.get("Top100NurEinWort")
+export const getLivePunkte = async (sonntagsId: string) => {
+  const pages = playlistPages.get(sonntagsId)
   if(!pages) {
     return;
   }

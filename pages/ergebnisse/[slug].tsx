@@ -1,8 +1,11 @@
 import { GetServerSidePropsContext } from "next";
-import { getAllTipsBySonntag, getSonntagById, getUserById } from "../../services/database";
+import { getAllTipsBySonntag, getSonntagById, getUserById, saveJoker, saveUserTipp } from "../../services/database";
 import Link from "next/link";
-import { Song, SonntagsTipp, Tipp, TippStatus, User } from "../../types";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Song, SonntagsTipp, TippStatus, User } from "../../types";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Paper, styled, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { useState } from "react";
+import { calculatePointsForTipps } from "../../services/punktberechnung";
+import { PlaylistSong } from "../updatePage";
 
 const tippStatusColorMapping = new Map<TippStatus, string>();
 tippStatusColorMapping.set(TippStatus.NOT_HIT, "transparent");
@@ -12,11 +15,12 @@ tippStatusColorMapping.set(TippStatus.CORRECT_WINNER, "red");
 tippStatusColorMapping.set(TippStatus.JOKER, "rebeccapurple");
 
 type BingofeldProps = {
-  bingofeld: Array<Song>,
-  bingofeldHits: Array<TippStatus>
+  bingofeld: Array<Song>;
+  bingofeldHits: Array<TippStatus>;
+  songClicked: (songIndex: number) => void;
 }
 
-function Bingofeld({bingofeld, bingofeldHits}: BingofeldProps) {
+function Bingofeld({bingofeld, bingofeldHits, songClicked}: BingofeldProps) {
   return <Box
       display="grid"
       gridTemplateColumns="repeat(5, 1fr)"
@@ -31,6 +35,7 @@ function Bingofeld({bingofeld, bingofeldHits}: BingofeldProps) {
         const backgroundColor = tippStatusColorMapping.get(bingofeldHits[index]);
        
         return <Paper
+          onClick={() => songClicked(index)}
          sx={{ backgroundColor, cursor: "pointer", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 1 }}
          key={`song_${index}`}>
             {song.artist} - {song.title}
@@ -55,7 +60,7 @@ function Playlist({list}: PlaylistProps) {
         <TableBody>
           {list.map(({artist, title}, index) => {
             return <TableRow key={`${title}_${index}`}>
-              <TableCell>{1 + index}</TableCell>
+              <TableCell>{100 - index}</TableCell>
               <TableCell>{artist} - {title}</TableCell>
             </TableRow>
           })}
@@ -66,20 +71,54 @@ function Playlist({list}: PlaylistProps) {
 
 interface OverviewProps {
   user: User,
-  tipps: Array<Tipp & {user: User}>,
+  tipps: Array<SonntagsTipp & {user: User}>,
   sonntagsName: string,
-  sonntagPlaylist: Array<Song>,
+  sonntagPlaylist: Array<PlaylistSong>,
+  sonntagsId: string,
 }
 
-export default function Overview({ tipps, sonntagsName, sonntagPlaylist}: OverviewProps
-   ) {
+export default function Overview(
+  { user, tipps, sonntagsName, sonntagPlaylist, sonntagsId}: OverviewProps
+) {
+  const [ownTipps] = tipps.filter((t) => t.user.id === user.id);
+  const otherUsersTipps = tipps.filter((t) => t.user.id !== user.id);
+
+  const [ownBingofeld] = useState<Array<Song>>(ownTipps.bingofeld);
+  const [ownTippStatus, setOwnTippStatus] = useState<Array<TippStatus>>(ownTipps.tippStatus);
+  const [userPunktzahl, setUserPunktzahl] = useState<number>(ownTipps.punktzahl);
+  console.log(ownTippStatus, ownBingofeld)
+
+  const updateLivePunkte = async () => {
+    await fetch(`/getLivepunkte?sonntagsId=${sonntagsId}`);
+    await fetch(`/updatePage?sonntagsId=${sonntagsId}`);
+    window.location.reload();
+  }
+  
+  const setJoker = (songIndex: number) => {
+    const tippStatusCopy = [...ownTipps.tippStatus];
+    const tippCopy = {...ownTipps};
+    tippCopy.joker = songIndex;
+    tippStatusCopy[songIndex] = TippStatus.JOKER;
+    const {punktzahl, hits} = calculatePointsForTipps(tippCopy, sonntagPlaylist);
+    setOwnTippStatus(hits);
+    setUserPunktzahl(punktzahl);
+    console.log(songIndex, hits)
+    saveJoker(user.id, sonntagsId, songIndex, hits, punktzahl);
+  }
+
   return <>
       <Link href="/sonntag">Zurück zur Übersicht</Link>
       <Typography variant="h6" mb="32px">{sonntagsName}</Typography>
-      <Grid container>
+      <Grid container spacing={4}>
+        {ownTipps && <Grid size={12} mb="24px">
+          <Typography variant="h6">Punkte von {user.name}</Typography>
+          <Typography>{userPunktzahl} Punkte</Typography>
+          <Bingofeld songClicked={(index) => setJoker(index)} bingofeld={ownBingofeld} bingofeldHits={ownTippStatus} />
+          <Button sx={{mt: "16px"}} variant="contained" onClick={updateLivePunkte}>Punkte aktualisieren</Button>
+        </Grid>}
         <Grid size={8} gap={2}>
           <Typography variant="h6">Sonntags Playliste</Typography>
-          <Playlist list={sonntagPlaylist.reverse()} />
+          <Playlist list={sonntagPlaylist} />
         </Grid>
         <Grid size={4}>
           <Typography variant="h6">Spieler Punkte</Typography>
@@ -93,27 +132,26 @@ export default function Overview({ tipps, sonntagsName, sonntagPlaylist}: Overvi
                 </TableRow>
               </TableHead>
               <TableBody>
-
+                {tipps.map((t, index) => {
+                  return <TableRow key={`score_${index}`}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{t.user.name}</TableCell>
+                      <TableCell align="right">{t.punktzahl}</TableCell>
+                  </TableRow>
+                })}
               </TableBody>
-              {tipps.map((t, index) => {
-                return <TableRow key={`score_${index}`}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{t.user.name}</TableCell>
-                    <TableCell align="right">{t.punktzahl}</TableCell>
-                </TableRow>
-              })}
             </Table>
           </TableContainer>
           <Link href="#nutzerlisten">Tipps aller Spieler</Link>
         </Grid>
       </Grid>
-      {tipps.map((t) => {
+      {otherUsersTipps.map((t) => {
           return <Accordion id="nutzerlisten" key={`usertipp_${t.user.id}`}>
             <AccordionSummary >
               <Typography variant="h6">Liste von {t.user.name} mit {t.punktzahl} Punkten</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Bingofeld bingofeld={t.bingofeld} bingofeldHits={t.tippStatus} />
+              <Bingofeld songClicked={() => {}} bingofeld={t.bingofeld} bingofeldHits={t.tippStatus} />
             </AccordionDetails>
           </Accordion>
         })}
@@ -160,6 +198,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
 
   return {
     props: {
+      sonntagsId: sonntag.id,
       sonntagsName: sonntag.name,
       sonntagPlaylist: sonntag.playlist,
       user: transferredUser,

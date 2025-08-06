@@ -1,7 +1,7 @@
 import { GetServerSidePropsContext } from "next";
 import { getSonntagById, getTipp, getUserById, saveUserTipp } from "../../services/database";
 import Link from "next/link";
-import { SerializableSonntag, Song, Tipp, TippStatus, User } from "../../types";
+import { SerializableSonntag, Song, SonntagsTipp, TippStatus, User } from "../../types";
 import { FormEvent, useEffect, useState } from "react";
 import { Box, Paper, Typography } from "@mui/material";
 
@@ -95,7 +95,7 @@ function UpdateBingoFeld({initialSong, closeForm, saveSong, isWinnerTipp}: Updat
 interface OverviewProps  {
   sonntag: SerializableSonntag;
   user: User;
-  tipp: Tipp;
+  tipp: SonntagsTipp;
   isLocked: boolean;
 }
 export default function Overview({sonntag, user, tipp, isLocked}: OverviewProps ) {

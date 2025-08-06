@@ -1,3 +1,4 @@
+import { GetServerSidePropsContext } from "next";
 import { updateSonntagsPlaylist } from "../services/database";
 import { getLivePunkte } from "../services/retrieveLivePunkte";
 
@@ -15,8 +16,9 @@ export default function GetLivePunkte({playlist}: {playlist: Array<PlaylistItem>
   </ul>
 }
 
-export async function getServerSideProps() {
-  const playlist = await getLivePunkte();
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const {sonntagsId} = context.query as unknown as {sonntagsId: string};
+  const playlist = await getLivePunkte(sonntagsId);
 
   if(!playlist) {
     return {
@@ -24,8 +26,7 @@ export async function getServerSideProps() {
     }
   }
 
-  await updateSonntagsPlaylist("Top100NurEinWort", playlist)
-  console.log(playlist);
+  await updateSonntagsPlaylist(sonntagsId, playlist)
 
   return {props: {playlist}}
 }

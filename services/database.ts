@@ -1,6 +1,6 @@
 import { FirebaseOptions, getApp, getApps, initializeApp } from "firebase/app";
 import { collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
-import { Song, Sonntag, SonntagsTipp, Tipp, TippStatus, User } from "../types";
+import { Song, Sonntag, SonntagsTipp, TippStatus, User } from "../types";
 import { PlaylistSong } from "../pages/updatePage";
 
 const firebaseConfig: FirebaseOptions = {
@@ -38,6 +38,12 @@ export const updateUserTippStatus = async (tippId: string, tippStatus: Array<Tip
   return setDoc(docReference, {tippStatus, punktzahl}, {merge: true});
 }
 
+export const saveJoker = async (userid: string, sonntag: string, joker: number, tippStatus: Array<TippStatus>, punktzahl: number) => {
+  const docReference = doc(db, "tipps", `${userid}_${sonntag}`);
+  await setDoc(docReference, {joker, tippStatus, punktzahl}, {merge: true});
+  console.log("Saved Joker at:" + joker)
+}
+
 export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: Array<Song>) => {
   const docReference = doc(db, "tipps", `${userid}_${sonntag}`);
   console.log(userid, sonntag, bingofeld)
@@ -46,7 +52,7 @@ export const saveUserTipp = async (userid: string, sonntag: string, bingofeld: A
     .catch((e) => console.log(e));
 }
 
-export const getTipp = async (userid: string, sonntag: string): Promise<Tipp> => {
+export const getTipp = async (userid: string, sonntag: string): Promise<SonntagsTipp> => {
   const tipId = `${userid}_${sonntag}`;
   const docReference = doc(db, "tipps", tipId);
   const docSnapshot = await getDoc(docReference);
