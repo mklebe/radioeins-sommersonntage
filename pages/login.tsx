@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
 import { getUserById } from "../services/database";
 import { setCookie } from "cookies-next";
+import Link from "next/link";
 
 const REDIRECT_TIMEOUT_START = 10;
 
@@ -12,6 +13,17 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const [redirectCountdown, setRedirectCountdown] = useState<number>(REDIRECT_TIMEOUT_START);
 
+  const decrementRedirectCountdown = (): void => {
+    setRedirectCountdown((previousValue: number) => {
+      if(previousValue > 0) {
+        return (previousValue -= 1);
+      } else {
+        return previousValue = 0;
+      }
+    })
+  };
+
+  let intervalHandle;
   const login = async (evt: FormEvent) => {
     evt.preventDefault();
     setLoginStateMessage("Starte login");
@@ -24,15 +36,15 @@ export default function Home() {
       setCookie("userid", userId);
       router.push("/sonntag")
       setLoginStateMessage(`Login Erfolgreich. Automatische weiterleitung aktiv. `);
-      const intervalHandle = window.setInterval(() => {
-        setRedirectCountdown(redirectCountdown-1);
-        if(redirectCountdown === 0) {
-          window.clearInterval(intervalHandle);
-        }
+      intervalHandle = window.setInterval(() => {
+        decrementRedirectCountdown();
       }, 1_000)
     } else {
       setLoginStateMessage(`Konnte Nutzer ${userId} nicht anmelden. Bitte kontaktiere den Admin.`);
     }
+  }
+  if(redirectCountdown === 0) {
+    window.clearInterval(intervalHandle);
   }
 
   return (
@@ -43,8 +55,8 @@ export default function Home() {
         <button type="submit">Anmelden</button>
       </form>
       <Typography mt="24px" variant="body1">{loginStateMessage}</Typography>
-      {redirectCountdown !== REDIRECT_TIMEOUT_START && <Typography>...{redirectCountdown}</Typography>}
-      {/* {redirectCountdown === 0 && } */}
+      {redirectCountdown !== REDIRECT_TIMEOUT_START && redirectCountdown !== 0 && <Typography>...{redirectCountdown}</Typography>}
+      {redirectCountdown === 0 && <Link href="/sonntag">Weiter zum Sonntag</Link> }
     </div>
   );
 };
