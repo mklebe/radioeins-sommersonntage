@@ -11,20 +11,26 @@ const firebaseConfig: FirebaseOptions = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-// Initialize Firebase
+
 console.log(`Initializes app: ${getApps().length}`)
+
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export const getSonntage = async (): Promise<Array<Sonntag>> => {
   const querySnapshot = await getDocs(collection(db, "sonntag"));
 
-  return querySnapshot.docs.map((document) => ({
+  if (querySnapshot.docs.length < 1) {
+    console.warn(`Could not retrieve sonntage`);
+    throw new Error("Could not retrieve sonntage from database")
+  }
+
+  return querySnapshot.docs.map((document) => (cleanSonntagWhenNeeded({
     id: document.id,
     date: new Date(document.data().date.seconds * 1000),
     name: document.data().name,
-    playlist: document.data().playlist ||[],
-  }));
+    playlist: document.data().playlist,
+  })));
 }
 
 export const updateUserTippStatus = async (tippId: string, tippStatus: Array<TippStatus>, punktzahl: number) => {
@@ -46,18 +52,16 @@ export const getTipp = async (userid: string, sonntag: string): Promise<Tipp> =>
   const docSnapshot = await getDoc(docReference);
 
   if(docSnapshot.exists()) {
-    return {
-      bingofeld: docSnapshot.data().bingofeld || Array(25).fill({artist: "", title: ""}),
-      punktzahl: docSnapshot.data().punktzahl || 0,
-      tippStatus: docSnapshot.data().tippStatus || Array(25).fill(TippStatus.NOT_HIT),
-    };
+    return cleanSonntagsTippWhenNeeded({
+      bingofeld: docSnapshot.data().bingofeld,
+      punktzahl: docSnapshot.data().punktzahl,
+      tippStatus: docSnapshot.data().tippStatus,
+    });
+  } else {
+    console.info(`Could not retrieve tipps with id ${tipId}, create a new one.`)
+    return cleanSonntagsTippWhenNeeded({});
   }
-
-  return { 
-    bingofeld: Array(25).fill({artist: "", title: ""}),
-    punktzahl: 0,
-    tippStatus: Array(25).fill(TippStatus.NOT_HIT),
-  };
+  
 }
 
 export const getAllTipsBySonntag = async (sonntag: string): Promise<Array<SonntagsTipp>> => {
@@ -66,13 +70,13 @@ export const getAllTipsBySonntag = async (sonntag: string): Promise<Array<Sonnta
     .filter((ts) => ts.id.includes(sonntag))
     .map((doc) => {
       const joker = +doc.data().joker
-      return {
+      return cleanSonntagsTippWhenNeeded({
         id: doc.id,
         bingofeld: doc.data().bingofeld,
         joker,
         tippStatus: doc.data().tippStatus,
         punktzahl: +doc.data().punktzahl,
-      }
+      })
     });
     return sonntagsTipps;
 }
@@ -87,12 +91,12 @@ export const getSonntagById = async (documentId: string): Promise<Sonntag|null> 
   const docSnapshot = await getDoc(docReference);
 
   if(docSnapshot.exists()) {
-    return {
+    return cleanSonntagWhenNeeded({
       id: docSnapshot.id,
       date: new Date(docSnapshot.data().date.seconds * 1000),
       name: docSnapshot.data().name,
-      playlist: docSnapshot.data().playlist || [],
-    }
+      playlist: docSnapshot.data().playlist,
+    })
   }
 
   return null;
@@ -103,14 +107,39 @@ export const getUserById = async (documentId: string): Promise<User|null> => {
   const docSnapshot = await getDoc(docReference);    
   
   if(docSnapshot.exists()) {
-    const a = {
+    return cleanUserWhenNeeded({
       id: docSnapshot.id,
       gesamtpunktzahl: docSnapshot.data().gesamtpunktzahl,
       name: docSnapshot.data().name,
-    }
-
-    return a;
+    });
   }
 
   return null;
+}
+
+const cleanUserWhenNeeded = ({gesamtpunktzahl, id, name}: Partial<User>): User => {
+  return {
+    id: id || "",
+    gesamtpunktzahl: gesamtpunktzahl || 0,
+    name: name || "Unbekannter Nutzer",
+  }
+}
+
+const cleanSonntagWhenNeeded = ({date, id, name, playlist}: Partial<Sonntag>) : Sonntag => {
+  return {
+    playlist: playlist || [],
+    name: name || "Top 100 Unbekannten Songs",
+    date: date || new Date(),
+    id: id || "Top100Unknown"
+  }
+}
+
+const cleanSonntagsTippWhenNeeded = ({bingofeld, id, joker, punktzahl, tippStatus}: Partial<SonntagsTipp>): SonntagsTipp => {
+  return {
+    bingofeld: bingofeld || Array(25).fill({artist: "", title: ""}),
+    joker: joker || null,
+    id: id || "Unknown Tipp",
+    punktzahl: punktzahl || 0,
+    tippStatus: tippStatus || Array(25).fill(TippStatus.NOT_HIT),
+  }
 }
