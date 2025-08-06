@@ -1,9 +1,9 @@
-import { Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
 import { getUserById } from "../services/database";
 import { setCookie } from "cookies-next";
-import Link from "next/link";
+
 
 const REDIRECT_TIMEOUT_START = 10;
 
