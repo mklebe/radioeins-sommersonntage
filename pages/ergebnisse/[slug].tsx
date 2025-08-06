@@ -86,7 +86,6 @@ export default function Overview(
   const [ownBingofeld] = useState<Array<Song>>(ownTipps.bingofeld);
   const [ownTippStatus, setOwnTippStatus] = useState<Array<TippStatus>>(ownTipps.tippStatus);
   const [userPunktzahl, setUserPunktzahl] = useState<number>(ownTipps.punktzahl);
-  console.log(ownTippStatus, ownBingofeld)
 
   const updateLivePunkte = async () => {
     await fetch(`/getLivepunkte?sonntagsId=${sonntagsId}`);

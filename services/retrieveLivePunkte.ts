@@ -69,6 +69,10 @@ export const getLivePunkte = async (sonntagsId: string) => {
     })
     .flat(1);
   
+    if (sonntagsId === "Top100NurEinWort") {
+      playlist.push({artist: "Radiohead", title: "Creep"});
+    }
+  
   return playlist.map((s, index) => ({
     ...s,
     position: 100 - index,
