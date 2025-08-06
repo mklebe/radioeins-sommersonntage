@@ -24,7 +24,7 @@ export async function getServerSideProps() {
     }
   }
 
-  await updateSonntagsPlaylist("Top100OneLove", playlist)
+  await updateSonntagsPlaylist("Top100NurEinWort", playlist)
   console.log(playlist);
 
   return {props: {playlist}}

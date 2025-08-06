@@ -26,17 +26,19 @@ export interface PlaylistSong extends Song {
 const SONNTAGS_ID = "Top100NurEinWort"
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  // const sonntag = await getSonntagById("Top100TestSonntage")
-  // if (!sonntag) {
-  //   return {
-  //     notFound: true,
-  //   }
-  // }
-  const playlist = Top100OneLove;
+  const sonntag = await getSonntagById("Top100NurEinWort")
+  if (!sonntag) {
+    return {
+      notFound: true,
+    }
+  }
+  console.log("Found: Top100NurEinWort");
+  const playlist = sonntag.playlist;
 
   if(!playlist) {
     return false;
   }
+  console.log("found playlist with" + playlist.length + " entries")
   const rankedSonntagsListe: Array<PlaylistSong>  = playlist.map((s: Song, index: number) => ({
     ...s,
     position: 100 - index,
@@ -115,6 +117,11 @@ const retrieveHitsForBingofeld = (bingofeld: Array<Song>, sonntagsPlaylist: Arra
     const hit = artistHits.filter((value) => titleHits.includes(value))[0]
     if(!hit) {
       hitsForField[index] = TippStatus.NOT_HIT;
+      return;
+    }
+
+    if (index === 4 && hit.position === 1) {
+      hitsForField[index] = TippStatus.CORRECT_WINNER;
       return;
     }
 

@@ -23,7 +23,7 @@ export const getSonntage = async (): Promise<Array<Sonntag>> => {
     id: document.id,
     date: new Date(document.data().date.seconds * 1000),
     name: document.data().name,
-    playlist: document.data().playlist,
+    playlist: document.data().playlist ||[],
   }));
 }
 
@@ -91,7 +91,7 @@ export const getSonntagById = async (documentId: string): Promise<Sonntag|null> 
       id: docSnapshot.id,
       date: new Date(docSnapshot.data().date.seconds * 1000),
       name: docSnapshot.data().name,
-      playlist: docSnapshot.data().playlist,
+      playlist: docSnapshot.data().playlist || [],
     }
   }
 

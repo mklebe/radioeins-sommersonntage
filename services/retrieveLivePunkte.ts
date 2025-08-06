@@ -22,7 +22,6 @@ const extractSongsFromHtml = (htmlString: string) => {
     const artist = songContainer.querySelector(".trackinterpret").textContent as string || "";
     const title = songContainer.querySelector(".tracktitle").textContent as string || "";
 
-
     return {
       artist,
       title,
@@ -34,9 +33,9 @@ const extractSongsFromHtml = (htmlString: string) => {
 
 const playlistPages = new Map<string, Array<string>>();
 playlistPages.set("Top100NurEinWort", [
-  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/07/250727_0900.html",
-  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/07/250727_1200.html",
-  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/07/250727_1500.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250803_0900.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250803_1200.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250803_1500.html",
 ])
 
 export const getLivePunkte = async () => {
