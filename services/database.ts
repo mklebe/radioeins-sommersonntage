@@ -1,6 +1,6 @@
 import { FirebaseOptions, getApp, getApps, initializeApp } from "firebase/app";
 import { collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore";
-import { Song, Sonntag, Tipp, TippStatus, User } from "../types";
+import { Song, Sonntag, SonntagsTipp, Tipp, TippStatus, User } from "../types";
 import { PlaylistSong } from "../pages/updatePage";
 
 const firebaseConfig: FirebaseOptions = {
@@ -60,7 +60,7 @@ export const getTipp = async (userid: string, sonntag: string): Promise<Tipp> =>
   };
 }
 
-export const getAllTipsBySonntag = async (sonntag: string) => {
+export const getAllTipsBySonntag = async (sonntag: string): Promise<Array<SonntagsTipp>> => {
   const tippsSnapshots = await getDocs(collection(db, "tipps"));
   const sonntagsTipps = tippsSnapshots.docs
     .filter((ts) => ts.id.includes(sonntag))

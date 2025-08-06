@@ -1,7 +1,7 @@
 import { GetServerSidePropsContext } from "next";
 import { getAllTipsBySonntag, getSonntagById, getUserById } from "../../services/database";
 import Link from "next/link";
-import { Song, Tipp, TippStatus, User } from "../../types";
+import { Song, SonntagsTipp, Tipp, TippStatus, User } from "../../types";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 
 const tippStatusColorMapping = new Map<TippStatus, string>();
@@ -71,7 +71,7 @@ interface OverviewProps {
   sonntagPlaylist: Array<Song>,
 }
 
-export default function Overview({ user, tipps, sonntagsName, sonntagPlaylist}: OverviewProps
+export default function Overview({ tipps, sonntagsName, sonntagPlaylist}: OverviewProps
    ) {
   return <>
       <Link href="/sonntag">Zurück zur Übersicht</Link>
@@ -145,10 +145,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
     }
   }
 
-  const userTipps = (await Promise.all(
+  const userTipps: UserTipps = (await Promise.all(
     allSonntagTipps.map(async (st) => ({
       ...st,
-      user: await getUserById(st.id.split("_")[0]),
+      user: await getUserFromTipp(st),
     }))
   )).sort((a, b) => b.punktzahl - a.punktzahl);
 
@@ -167,3 +167,20 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
     },
   }
 }
+
+const getUserFromTipp = async (tipp: SonntagsTipp): Promise<User> => {
+  const userId = tipp.id.split("_")[0];
+  const user = await getUserById(userId);
+
+  if (user === null) {
+    return {
+      id: "999",
+      gesamtpunktzahl: 0,
+      name: "unknown"
+    }
+  }
+
+  return user;
+}
+
+type UserTipps = Array<{user: User} & SonntagsTipp>;

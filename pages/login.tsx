@@ -19,6 +19,7 @@ export default function Home() {
       return;
     }
     const user = await getUserById(userId);
+    console.log(user);
     if (user) {
       setCookie("userid", userId);
       router.push("/sonntag")

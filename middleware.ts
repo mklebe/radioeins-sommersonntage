@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
   if (isProtectedRoute) {
     console.log("Middleware cookie value", useridFromCookie, request.referrer, request.cookies)
     if(!useridFromCookie || !useridFromCookie.value) {
+      console.log("Cookie not set, redirect to login page")
       return NextResponse.redirect(new URL('/login', request.nextUrl))
     }
   }

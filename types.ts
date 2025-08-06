@@ -31,3 +31,11 @@ export interface Tipp {
     bingofeld: Array<Song>;
     tippStatus: Array<TippStatus>
 };
+
+export interface SonntagsTipp {
+    id: string;
+    bingofeld: Array<Song>;
+    joker: number | null;
+    tippStatus: Array<TippStatus>;
+    punktzahl: number;
+}
