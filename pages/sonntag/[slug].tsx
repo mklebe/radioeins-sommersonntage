@@ -20,35 +20,40 @@ type BingofeldProps = {
   selectSong: (index: number) => void,
 }
 function Bingofeld({bingofeld, selectSong, selectedSongIndex, bingofeldHits}: BingofeldProps) {
-  return <Box
-      display="grid"
-      gridTemplateColumns="repeat(5, 1fr)"
-      gridTemplateRows="repeat(5, 1fr)"
-      gap={2}
-    >
-      <div>100 - 81</div>
-      <div>80 - 61</div>
-      <div>60 - 41</div>
-      <div>40 - 21</div>
-      <div>20 - 1</div>
-      {bingofeld.map((song, index) => {
-        const backgroundColor = index === selectedSongIndex ? "#ddd" : tippStatusColorMapping.get(bingofeldHits[index]);
-       
-        return <Paper
-         sx={{ backgroundColor, cursor: "pointer", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 1 }}
-         onClick={() => selectSong(index)} key={`song_${index}`}>
-            {song.artist} - {song.title}
-          </Paper>
+  return <>
+    <Box
+        display="grid"
+        gridTemplateColumns="repeat(5, 1fr)"
+        gridTemplateRows="repeat(5, 1fr)"
+        gap={2}
+      >
+        <div>100 - 81</div>
+        <div>80 - 61</div>
+        <div>60 - 41</div>
+        <div>40 - 21</div>
+        <div>20 - 1</div>
+        {bingofeld.map((song, index) => {
+          let backgroundColor = index === selectedSongIndex ? "#ddd" : tippStatusColorMapping.get(bingofeldHits[index]);
+          backgroundColor = index === 4 ? "#FFB7C5" : backgroundColor
         
-      })}
-    </Box>
+          return <Paper
+          sx={{ backgroundColor, cursor: "pointer", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 1 }}
+          onClick={() => selectSong(index)} key={`song_${index}`}>
+              {song.artist} - {song.title}
+            </Paper>
+          
+        })}
+      </Box>
+      <Typography mt="24px">Der richtige Tipp für die Nummer 1 bringt 10 Punkte extra und kann in dem Feld oben rechts (Rosa Hintergrund) angegeben werden.</Typography>
+  </>
 }
 interface UpdateBingoFeldProps {
   initialSong: Song;
+  isWinnerTipp: boolean;
   closeForm: () => void;
   saveSong: (song: Song) => void;
 }
-function UpdateBingoFeld({initialSong, closeForm, saveSong}: UpdateBingoFeldProps) {
+function UpdateBingoFeld({initialSong, closeForm, saveSong, isWinnerTipp}: UpdateBingoFeldProps) {
   const [song, setSong] = useState<Song>(initialSong);
   useEffect(() => {
     setSong(initialSong);
@@ -64,6 +69,7 @@ function UpdateBingoFeld({initialSong, closeForm, saveSong}: UpdateBingoFeldProp
     closeForm();
   }
   return <form onSubmit={saveTipp}>
+          {isWinnerTipp && <Typography>Dein Tipp für die Nummer 1</Typography>}
           <label>Künstler: <input name="artist" type="text" value={song.artist} onChange={(evt) => {
             setSong({
               ...song,
@@ -111,6 +117,7 @@ export default function Overview({sonntag, user, tipp, isLocked}: OverviewProps 
     <Typography mb="24px">Um alle Felder auszufüllen brauchst du noch {bingofeld.filter(a => a.artist === "").length} Songs</Typography>
     {!isLocked && typeof songInputIndex === "number" &&
         <UpdateBingoFeld 
+          isWinnerTipp={songInputIndex === 4}
           closeForm={() => setSongInputIndex(null)}
           initialSong={bingofeld[songInputIndex]}
           saveSong={saveTipp}
