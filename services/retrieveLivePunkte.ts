@@ -72,6 +72,12 @@ export const getLivePunkte = async (sonntagsId: string) => {
     if (sonntagsId === "Top100NurEinWort") {
       playlist.push({artist: "Radiohead", title: "Creep"});
     }
+
+  if (sonntagsId === "Top100Darkness") {
+    playlist.push({
+      artist: "the cure", title: "A forest"
+    })
+  }
   
   return playlist.map((s, index) => ({
     ...s,
