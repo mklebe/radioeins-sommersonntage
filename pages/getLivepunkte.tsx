@@ -1,6 +1,7 @@
 import { GetServerSidePropsContext } from "next";
-import { updateSonntagsPlaylist } from "../services/database";
-import { getLivePunkte } from "../services/retrieveLivePunkte";
+import { getSonntagById, updateSonntagsPlaylist } from "../services/database";
+import { getFinalPunkte, getLivePunkte } from "../services/retrieveLivePunkte";
+import { PlaylistSong } from "./updatePage";
 
 interface PlaylistItem {
   artist: string;
@@ -18,13 +19,24 @@ export default function GetLivePunkte({playlist}: {playlist: Array<PlaylistItem>
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {sonntagsId} = context.query as unknown as {sonntagsId: string};
-  const playlist = await getLivePunkte(sonntagsId);
-
-  if(!playlist) {
-    return {
-      notFound: true,
+  const sonntagFromDatabase = await getSonntagById(sonntagsId);
+  const currentHour = new Date().getHours();
+  
+  let playlist: Array<PlaylistSong>;
+  if(sonntagFromDatabase && sonntagFromDatabase.playlist.length === 100) {
+    playlist = sonntagFromDatabase.playlist;
+  } else if( currentHour >= 19 ) {
+    playlist = await getFinalPunkte(sonntagsId);
+  } else {
+    const playlistFromCrawler = await getLivePunkte(sonntagsId);
+    if(!playlistFromCrawler) {
+      return {
+        notFound: true,
+      }
     }
+    playlist = playlistFromCrawler;
   }
+
 
   await updateSonntagsPlaylist(sonntagsId, playlist)
 

@@ -24,7 +24,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <Box sx={{flexGrow: 1}}>
           <AppBar>
             <Toolbar>
-              <Typography variant='h6' sx={{flexGrow: 1}}><StyledLink color="inherit" href="/">Sommer Sonntage</StyledLink></Typography>
+              <Typography variant='h6' sx={{flexGrow: 1}}><StyledLink color="inherit" href="/sonntag">Sommer Sonntage</StyledLink></Typography>
               <Button variant='outlined' sx={{color: 'white'}} onClick={() => logout()}>Abmelden</Button>
             </Toolbar>
           </AppBar>
