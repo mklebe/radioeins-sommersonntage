@@ -46,7 +46,7 @@ function Bingofeld({bingofeld, bingofeldHits, songClicked}: BingofeldProps) {
 }
 
 type PlaylistProps = {
-  list: Array<Song>,
+  list: Array<PlaylistSong>,
 }
 function Playlist({list}: PlaylistProps) {
   return <TableContainer>
@@ -58,9 +58,9 @@ function Playlist({list}: PlaylistProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {list.map(({artist, title}, index) => {
+          {list.map(({artist, title, position}, index) => {
             return <TableRow key={`${title}_${index}`}>
-              <TableCell>{100 - index}</TableCell>
+              <TableCell>{position}</TableCell>
               <TableCell>{artist} - {title}</TableCell>
             </TableRow>
           })}
