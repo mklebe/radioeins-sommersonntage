@@ -58,6 +58,8 @@ type PlaylistProps = {
   list: Array<PlaylistSong>,
 }
 function Playlist({list}: PlaylistProps) {
+  list.sort((a, b) => a.position - b.position)
+
   return <TableContainer>
       <Table>
         <TableHead>
