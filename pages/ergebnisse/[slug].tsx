@@ -108,17 +108,13 @@ export default function Overview(
   return <>
       <Link href="/sonntag">Zurück zur Übersicht</Link>
       <Typography variant="h6" mb="32px">{sonntagsName}</Typography>
-      <Grid container spacing={4}>
+      <Grid spacing={4}>
         {ownTipps && <Grid size={12} mb="24px">
           <Typography variant="h6">Punkte von {user.name}</Typography>
           <Typography>{userPunktzahl} Punkte</Typography>
           <Bingofeld songClicked={(index) => setJoker(index)} bingofeld={ownBingofeld} bingofeldHits={ownTippStatus} />
           <Button sx={{mt: "16px"}} variant="contained" onClick={updateLivePunkte}>Punkte aktualisieren</Button>
         </Grid>}
-        <Grid size={8} gap={2}>
-          <Typography variant="h6">Sonntags Playliste</Typography>
-          <Playlist list={sonntagPlaylist} />
-        </Grid>
         <Grid size={4}>
           <Typography variant="h6">Spieler Punkte</Typography>
           <TableContainer>
@@ -142,6 +138,10 @@ export default function Overview(
             </Table>
           </TableContainer>
           <Link href="#nutzerlisten">Tipps aller Spieler</Link>
+        </Grid>
+        <Grid size={8} gap={2}>
+          <Typography variant="h6">Sonntags Playliste</Typography>
+          <Playlist list={sonntagPlaylist} />
         </Grid>
       </Grid>
       {otherUsersTipps.map((t) => {
