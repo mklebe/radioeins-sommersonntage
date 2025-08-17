@@ -1,8 +1,8 @@
 import { GetServerSidePropsContext } from "next";
-import { getAllTipsBySonntag, getSonntagById, getUserById, saveJoker, saveUserTipp } from "../../services/database";
+import { getAllTipsBySonntag, getSonntagById, getUserById, saveJoker } from "../../services/database";
 import Link from "next/link";
 import { Song, SonntagsTipp, TippStatus, User } from "../../types";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Paper, styled, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { useState } from "react";
 import { calculatePointsForTipps } from "../../services/punktberechnung";
 import { PlaylistSong } from "../updatePage";
@@ -13,6 +13,13 @@ tippStatusColorMapping.set(TippStatus.IN_LIST, "yellow");
 tippStatusColorMapping.set(TippStatus.CORRECT_COLUMN, "green");
 tippStatusColorMapping.set(TippStatus.CORRECT_WINNER, "red");
 tippStatusColorMapping.set(TippStatus.JOKER, "rebeccapurple");
+
+const fontColorMapping = new Map<TippStatus, string>();
+fontColorMapping.set(TippStatus.NOT_HIT, "black");
+fontColorMapping.set(TippStatus.IN_LIST, "black");
+fontColorMapping.set(TippStatus.CORRECT_COLUMN, "white");
+fontColorMapping.set(TippStatus.CORRECT_WINNER, "white");
+fontColorMapping.set(TippStatus.JOKER, "black");
 
 type BingofeldProps = {
   bingofeld: Array<Song>;
@@ -31,14 +38,16 @@ function Bingofeld({bingofeld, bingofeldHits, songClicked}: BingofeldProps) {
       <div>60 - 41</div>
       <div>40 - 21</div>
       <div>20 - 1</div>
-      {bingofeld.map((song, index) => {
+      {bingofeld.map(({artist, title}, index) => {
         const backgroundColor = tippStatusColorMapping.get(bingofeldHits[index]);
+        const color = fontColorMapping.get(bingofeldHits[index])
        
         return <Paper
           onClick={() => songClicked(index)}
-         sx={{ backgroundColor, cursor: "pointer", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 1 }}
+         sx={{ backgroundColor, color, cursor: "pointer",  padding: 1 }}
          key={`song_${index}`}>
-            {song.artist} - {song.title}
+            <Typography sx={{fontWeight: 700, display: "block"}}>{artist}</Typography>
+            <Typography>{title}</Typography>
           </Paper>
         
       })}
@@ -61,7 +70,10 @@ function Playlist({list}: PlaylistProps) {
           {list.map(({artist, title, position}, index) => {
             return <TableRow key={`${title}_${index}`}>
               <TableCell>{position}</TableCell>
-              <TableCell>{artist} - {title}</TableCell>
+              <TableCell>
+                <Typography sx={{fontWeight: 700}}>{artist}</Typography>
+                <Typography>{title}</Typography>
+              </TableCell>
             </TableRow>
           })}
         </TableBody>
@@ -69,9 +81,37 @@ function Playlist({list}: PlaylistProps) {
     </TableContainer>
 }
 
+interface PlayersTableProps {
+  tipps: UserTipps
+}
+
+const PlayersTable = ({tipps}: PlayersTableProps) => {
+  return <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Spieler</TableCell>
+                  <TableCell align="right">Punktzahl</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tipps.map((t, index) => {
+                  return <TableRow key={`score_${index}`}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{t.user.name}</TableCell>
+                      <TableCell align="right">{t.punktzahl}</TableCell>
+                  </TableRow>
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+}
+
+
 interface OverviewProps {
   user: User,
-  tipps: Array<SonntagsTipp & {user: User}>,
+  tipps: UserTipps,
   sonntagsName: string,
   sonntagPlaylist: Array<PlaylistSong>,
   sonntagsId: string,
@@ -108,40 +148,21 @@ export default function Overview(
   return <>
       <Link href="/sonntag">Zurück zur Übersicht</Link>
       <Typography variant="h6" mb="32px">{sonntagsName}</Typography>
-      <Grid spacing={4}>
+      <Grid container spacing={4}>
         {ownTipps && <Grid size={12} mb="24px">
           <Typography variant="h6">Punkte von {user.name}</Typography>
           <Typography>{userPunktzahl} Punkte</Typography>
           <Bingofeld songClicked={(index) => setJoker(index)} bingofeld={ownBingofeld} bingofeldHits={ownTippStatus} />
           <Button sx={{mt: "16px"}} variant="contained" onClick={updateLivePunkte}>Punkte aktualisieren</Button>
         </Grid>}
-        <Grid size={4}>
-          <Typography variant="h6">Spieler Punkte</Typography>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>#</TableCell>
-                  <TableCell>Spieler</TableCell>
-                  <TableCell align="right">Punktzahl</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tipps.map((t, index) => {
-                  return <TableRow key={`score_${index}`}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{t.user.name}</TableCell>
-                      <TableCell align="right">{t.punktzahl}</TableCell>
-                  </TableRow>
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Link href="#nutzerlisten">Tipps aller Spieler</Link>
-        </Grid>
         <Grid size={8} gap={2}>
           <Typography variant="h6">Sonntags Playliste</Typography>
           <Playlist list={sonntagPlaylist} />
+        </Grid>
+        <Grid size={4}>
+          <Typography variant="h6">Spieler Punkte</Typography>
+          <PlayersTable tipps={tipps} />
+          <Link href="#nutzerlisten">Tipps aller Spieler</Link>
         </Grid>
       </Grid>
       {otherUsersTipps.map((t) => {

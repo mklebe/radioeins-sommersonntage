@@ -22,8 +22,6 @@ export interface PlaylistSong extends Song {
   position: number;
 }
 
-const SONNTAGS_ID = "Top100NurEinWort"
-
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {sonntagsId} = context.query as unknown as {sonntagsId: string};
   const sonntag = await getSonntagById(sonntagsId)
@@ -32,7 +30,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       notFound: true,
     }
   }
-  console.log("Found: Top100NurEinWort");
+  console.log(`Found: ${sonntagsId}`);
   const playlist = sonntag.playlist;
 
   if(!playlist) {
@@ -44,8 +42,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     position: 100 - index,
   }));
   
-  updateSonntagsPlaylist(SONNTAGS_ID, rankedSonntagsListe);
-  const tipps = await getAllTipsBySonntag(SONNTAGS_ID)
+  updateSonntagsPlaylist(sonntagsId, rankedSonntagsListe);
+  const tipps = await getAllTipsBySonntag(sonntagsId)
 
   tipps.forEach( async (t) => {
     
