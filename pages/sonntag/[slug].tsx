@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SerializableSonntag, Song, SonntagsTipp, TippStatus, User } from "../../types";
 import { FormEvent, useEffect, useState } from "react";
 import { Box, Paper, Typography } from "@mui/material";
+import { findDoubles } from "../../services/findDoubles";
 
 const tippStatusColorMapping = new Map<TippStatus, string>();
 tippStatusColorMapping.set(TippStatus.NOT_HIT, "transparent");
@@ -18,8 +19,9 @@ type BingofeldProps = {
   selectedSongIndex: number | null,
   bingofeldHits: Array<TippStatus>
   selectSong: (index: number) => void,
+  doubleFields: Array<number>,
 }
-function Bingofeld({bingofeld, selectSong, selectedSongIndex, bingofeldHits}: BingofeldProps) {
+function Bingofeld({bingofeld, selectSong, selectedSongIndex, bingofeldHits, doubleFields}: BingofeldProps) {
   return <>
     <Box
         display="grid"
@@ -35,9 +37,10 @@ function Bingofeld({bingofeld, selectSong, selectedSongIndex, bingofeldHits}: Bi
         {bingofeld.map((song, index) => {
           let backgroundColor = index === selectedSongIndex ? "#ddd" : tippStatusColorMapping.get(bingofeldHits[index]);
           backgroundColor = index === 4 ? "#FFB7C5" : backgroundColor
+          const boxShadow: string = doubleFields.includes(index) ? "0 0 4px red" : "";
         
           return <Paper
-          sx={{ backgroundColor, cursor: "pointer", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 1 }}
+          sx={{ backgroundColor, boxShadow, cursor: "pointer", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 1 }}
           onClick={() => selectSong(index)} key={`song_${index}`}>
               {song.artist} - {song.title}
             </Paper>
@@ -92,6 +95,8 @@ function UpdateBingoFeld({initialSong, closeForm, saveSong, isWinnerTipp}: Updat
         </form>
 }
 
+const DOUBLE_ERROR_TEXT = "Ups, du hast mehrmals den selben Song in der List";
+
 interface OverviewProps  {
   sonntag: SerializableSonntag;
   user: User;
@@ -101,6 +106,9 @@ interface OverviewProps  {
 export default function Overview({sonntag, user, tipp, isLocked}: OverviewProps ) {
   const [songInputIndex, setSongInputIndex] = useState<number|null>(null);
   const [bingofeld, setBingofeld] = useState<Array<Song>>(tipp.bingofeld);
+  const doubles = findDoubles(bingofeld);
+  const [doubleFields, setDoubleFields] = useState<Array<number>>(doubles.doubleFields || []);
+  const [doubleText, setDoubleText] = useState<string|null>(doubles.doublesFound ? DOUBLE_ERROR_TEXT : null);
 
   const saveTipp = (song: Song) => {
     if(typeof songInputIndex === "number") {
@@ -108,6 +116,16 @@ export default function Overview({sonntag, user, tipp, isLocked}: OverviewProps 
       newBingofeld[songInputIndex] = song;
       setBingofeld(newBingofeld);
       saveUserTipp(user.id, sonntag.id, newBingofeld);
+      const {doublesFound, doubleFields} = findDoubles(newBingofeld);
+      console.log(doubleFields, doublesFound);
+      if(doublesFound) {
+        setDoubleFields(doubleFields);
+        setDoubleText(DOUBLE_ERROR_TEXT);
+
+      } else {
+        setDoubleFields([]);
+        setDoubleText(null);
+      }
     }
   }
 
@@ -123,7 +141,8 @@ export default function Overview({sonntag, user, tipp, isLocked}: OverviewProps 
           saveSong={saveTipp}
         />
     }
-    <Bingofeld bingofeld={bingofeld} selectSong={(index) => {setSongInputIndex(index)}} selectedSongIndex={songInputIndex} bingofeldHits={tipp.tippStatus} />
+    <Typography>{doubleText}</Typography>
+    <Bingofeld doubleFields={doubleFields} bingofeld={bingofeld} selectSong={(index) => {setSongInputIndex(index)}} selectedSongIndex={songInputIndex} bingofeldHits={tipp.tippStatus} />
   </>
 
 }

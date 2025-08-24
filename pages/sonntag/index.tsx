@@ -98,7 +98,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const sealedSonntage: Array<SerializableSonntag> = sonntage
     .filter((a) => a.date.getTime() < new Date().getTime())
-    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
     .map((s: Sonntag) => ({
       ...s,
       date: s.date.toLocaleDateString(),
