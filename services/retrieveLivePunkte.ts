@@ -102,7 +102,8 @@ const finalPlaylistPage: Map<string, string> = new Map();
 finalPlaylistPage.set(Categories.DARKNESS, "https://www.radioeins.de/musik/top_100/2025/dark-wave/our_darkness_die_top_100.html");
 finalPlaylistPage.set(Categories.ONE_LOVE, "https://www.radioeins.de/musik/top_100/2025/reggae/reggae_die_top_100.html");
 finalPlaylistPage.set(Categories.NUR_EIN_WORT, "https://www.radioeins.de/musik/top_100/2025/wort/nur_ein_wort_die_top_100.html");
-finalPlaylistPage.set(Categories.FRIEND, "https://www.radioeins.de/musik/top_100/2025/wort/nur_ein_wort_die_top_100.html")
+finalPlaylistPage.set(Categories.FRIEND, "https://www.radioeins.de/musik/top_100/2025/freundschaft/die_top_100.html");
+finalPlaylistPage.set(Categories.FIFTIES, "https://www.radioeins.de/musik/top_100/2025/wort/");
 
 export const getFinalPunkte = async (sonntagsId: string): Promise<Array<PlaylistSong>> => {
   const finalListUrl = finalPlaylistPage.get(sonntagsId)!;
