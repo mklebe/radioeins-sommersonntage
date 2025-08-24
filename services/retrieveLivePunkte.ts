@@ -83,7 +83,21 @@ playlistPages.set(Categories.FRIEND, [
   "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250817_1200.html",
   "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250817_1500.html",
 ]);
-
+playlistPages.set(Categories.FIFTIES, [
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250824_0900.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250824_1200.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250824_1500.html",
+]);
+playlistPages.set(Categories.NIGHT, [
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250831_0900.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250831_1200.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/08/250831_1500.html",
+]);
+playlistPages.set(Categories.DISKO, [
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/09/250907_0900.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/09/250907_1200.html",
+  "https://www.radioeins.de/programm/sendungen/sondersendung/playlisten/2025/09/250907_1500.html",
+]);
 const finalPlaylistPage: Map<string, string> = new Map();
 finalPlaylistPage.set(Categories.DARKNESS, "https://www.radioeins.de/musik/top_100/2025/dark-wave/our_darkness_die_top_100.html");
 finalPlaylistPage.set(Categories.ONE_LOVE, "https://www.radioeins.de/musik/top_100/2025/reggae/reggae_die_top_100.html");
