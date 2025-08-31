@@ -104,6 +104,7 @@ finalPlaylistPage.set(Categories.ONE_LOVE, "https://www.radioeins.de/musik/top_1
 finalPlaylistPage.set(Categories.NUR_EIN_WORT, "https://www.radioeins.de/musik/top_100/2025/wort/nur_ein_wort_die_top_100.html");
 finalPlaylistPage.set(Categories.FRIEND, "https://www.radioeins.de/musik/top_100/2025/freundschaft/die_top_100.html");
 finalPlaylistPage.set(Categories.FIFTIES, "https://www.radioeins.de/musik/top_100/2025/wort/");
+finalPlaylistPage.set(Categories.NIGHT, "https://www.radioeins.de/musik/top_100/2025/nacht/up_north_die_top_100.html");
 
 export const getFinalPunkte = async (sonntagsId: string): Promise<Array<PlaylistSong>> => {
   const finalListUrl = finalPlaylistPage.get(sonntagsId)!;

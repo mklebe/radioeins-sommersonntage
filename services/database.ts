@@ -89,6 +89,7 @@ export const getAllTipsBySonntag = async (sonntag: string): Promise<Array<Sonnta
 
 export const updateSonntagsPlaylist = async (documentId: string, playlist: Array<PlaylistSong>) => {
   const docReference = doc(db, "sonntag", documentId);
+  console.log(`Updated ${documentId} with latest Song: ${playlist[0].artist}`)
   await setDoc(docReference, {playlist}, {merge: true});
 }
 

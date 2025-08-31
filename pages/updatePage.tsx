@@ -36,18 +36,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if(!playlist) {
     return false;
   }
-  console.log("found playlist with" + playlist.length + " entries")
-  const rankedSonntagsListe: Array<PlaylistSong>  = playlist.map((s: Song, index: number) => ({
-    ...s,
-    position: 100 - index,
-  }));
   
-  updateSonntagsPlaylist(sonntagsId, rankedSonntagsListe);
+  updateSonntagsPlaylist(sonntagsId, playlist);
   const tipps = await getAllTipsBySonntag(sonntagsId)
 
-  tipps.forEach( async (t) => {
-    
-    const {punktzahl, hits} = calculatePointsForTipps(t, rankedSonntagsListe);
+  tipps.forEach( async (t) => {    
+    const {punktzahl, hits} = calculatePointsForTipps(t, playlist);
     console.info(`Updated list ${t.id} with ${punktzahl} points`)
     await updateUserTippStatus(t.id, hits, punktzahl);
   });
